@@ -18,7 +18,7 @@ public class Md5Hasher implements Hasher {
 
     public byte[] makeHash(InputStream stream) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
-        int readCount = 0;
+        int readCount;
         do {
             readCount = stream.read(buffer);
             if (readCount > 0) {
