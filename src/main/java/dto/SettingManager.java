@@ -4,30 +4,46 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 
+/**
+ * Setting manager
+ */
 public class SettingManager {
 
-    /// The path to the Java KeyStore file.
+    /**
+     * Java KeyStore file
+     */
     private final Path settingFile = Path.of("credential.jks");
 
+    /**
+     * Password for Java KeyStore file
+     */
     private final String password;
 
+    /**
+     * Constructor
+     * @param password password
+     */
     public SettingManager(String password) {
         this.password = password;
     }
 
-    /// Creates a new Java KeyStore file.
-    /// @return The path to the Java KeyStore file.
+    /**
+     * Create Java KeyStore file when it does not exist
+     * @return Java KeyStore file
+     * @throws Exception if error occurs
+     */
     public Path createSettingFile() throws Exception {
         if (settingFile.toFile().exists()) {
             throw new IllegalStateException("The setting file already exists.");
         }
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null, password.toCharArray());
-
         keyStore.store(
             Files.newOutputStream(settingFile),
             password.toCharArray()
         );
         return settingFile;
     }
+
+
 }

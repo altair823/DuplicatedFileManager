@@ -1,8 +1,19 @@
 package hasher;
 
-import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Hasher interface
+ */
 public interface Hasher {
-    byte[] makeHash(InputStream stream) throws IOException;
+
+    /**
+     * Make hash from input stream
+     *
+     * @param stream input stream
+     * @return hash value
+     */
+    static byte[] makeHash(InputStream stream) {
+        return new byte[0];
+    }
 }

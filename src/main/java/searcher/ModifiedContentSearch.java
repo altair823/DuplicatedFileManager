@@ -3,11 +3,27 @@ package searcher;
 import java.io.File;
 import java.util.*;
 
+/**
+ * Search modified contents
+ */
 public class ModifiedContentSearch {
 
+    /**
+     * List of directory paths
+     */
     private final List<String> dirPaths;
+
+    /**
+     * List of file paths
+     */
     private final List<String> filePaths;
 
+    /**
+     * Constructor
+     * Files and directories modified after the timestamp are searched recursively when this object is created.
+     * @param rootPath root path to search
+     * @param timestamp timestamp to compare
+     */
     public ModifiedContentSearch(String rootPath, long timestamp) {
         this.dirPaths = new ArrayList<>();
         this.filePaths = new ArrayList<>();
@@ -15,6 +31,11 @@ public class ModifiedContentSearch {
         searchByTime(root, timestamp);
     }
 
+    /**
+     * Search by time
+     * @param currentDir current directory
+     * @param timestamp timestamp to compare
+     */
     private void searchByTime(File currentDir, long timestamp) {
         File[] files = currentDir.listFiles();
         if (files == null) {
@@ -35,14 +56,27 @@ public class ModifiedContentSearch {
         }
     }
 
+    /**
+     * Get list of directory paths
+     * @return list of directory paths
+     */
     public List<String> getDirPaths() {
         return dirPaths;
     }
 
+    /**
+     * Get list of file paths
+     * @return list of file paths
+     */
     public List<String> getFilePaths() {
         return filePaths;
     }
 
+    /**
+     * Count directory contents
+     * @param folderPath folder path
+     * @return number of contents
+     */
     public static int countDirContents(String folderPath) {
         File folder = new File(folderPath);
         if (!folder.exists() || !folder.isDirectory()) {

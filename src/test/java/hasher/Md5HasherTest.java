@@ -14,8 +14,7 @@ class Md5HasherTest {
         MessageDigest controlMd5Hasher = MessageDigest.getInstance("MD5");
         controlMd5Hasher.update(testString.getBytes());
         byte[] expectedDigest = controlMd5Hasher.digest();
-        Hasher hasher = new Md5Hasher();
-        byte[] testedDigest = hasher.makeHash(new ByteArrayInputStream(testString.getBytes()));
+        byte[] testedDigest = Md5Hasher.makeHash(new ByteArrayInputStream(testString.getBytes()));
 
         assert(Arrays.equals(expectedDigest, testedDigest));
     }
@@ -36,8 +35,7 @@ class Md5HasherTest {
         fileInputStream1.close();
 
         FileInputStream fileInputStream2 = new FileInputStream(testFileName);
-        Hasher hasher = new Md5Hasher();
-        byte[] testedDigest = hasher.makeHash(fileInputStream2);
+        byte[] testedDigest = Md5Hasher.makeHash(fileInputStream2);
         fileInputStream2.close();
 
         assert(Arrays.equals(expectedDigest, testedDigest));
