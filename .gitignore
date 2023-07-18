@@ -14,7 +14,7 @@ build/
 .classpath
 .factorypath
 .project
-.settings
+.databaseConfig
 .springBeans
 .sts4-cache
 bin/
