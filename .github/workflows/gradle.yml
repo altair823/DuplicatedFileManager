@@ -17,10 +17,8 @@ jobs:
       uses: gradle/gradle-build-action@v2
       
     
-    - name: Setup and execute Gradle 'test' task
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: test
+    - name: Execute Gradle build
+      run: ./gradlew build
       
     - name: Test with Gradle Wrapper
       run: ./gradlew test
