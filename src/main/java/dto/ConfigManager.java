@@ -10,6 +10,8 @@ import java.nio.file.Path;
  */
 public class ConfigManager {
 
+    private long lastRunTimestamp;
+
     private DatabaseConfig databaseConfig;
 
     /**
@@ -20,12 +22,31 @@ public class ConfigManager {
     }
 
     /**
-     * Load configuration from file
-     * @param path path to configuration file
+     * Load last run timestamp from file
+     * @param lastRunTimestampPath path to last run timestamp file
      * @throws IOException if error occurs
      */
-    public void load(Path path) throws IOException {
-        byte[] rawByteData = Files.readAllBytes(path);
+    public void loadLastRunTimestamp(Path lastRunTimestampPath) throws IOException {
+        byte[] rawByteData = Files.readAllBytes(lastRunTimestampPath);
+        String strData = new String(rawByteData, StandardCharsets.UTF_8);
+        lastRunTimestamp = Long.parseLong(strData);
+    }
+
+    /**
+     * Get last run timestamp
+     * @return last run timestamp
+     */
+    public long getLastRunTimestamp() {
+     return lastRunTimestamp;
+    }
+
+    /**
+     * Load configuration from file
+     * @param databaseConfigPath databaseConfigPath to configuration file
+     * @throws IOException if error occurs
+     */
+    public void loadDatabaseConfig(Path databaseConfigPath) throws IOException {
+        byte[] rawByteData = Files.readAllBytes(databaseConfigPath);
         String strData = new String(rawByteData, StandardCharsets.UTF_8);
         databaseConfig = new DatabaseConfig(strData);
     }

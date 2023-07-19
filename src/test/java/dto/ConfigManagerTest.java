@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConfigManagerTest {
 
     @Test
-    void loadTest() throws IOException {
+    void loadDatabaseConfigTest() throws IOException {
         DatabaseConfig configs = new DatabaseConfig(
                 "jdbc:postgresql://localhost:5432/postgres",
                 "postgres",
@@ -32,10 +32,25 @@ class ConfigManagerTest {
         // Load json from file
         ConfigManager configManager = new ConfigManager();
         Path configFile = Path.of("configs.json");
-        configManager.load(configFile);
+        configManager.loadDatabaseConfig(configFile);
         assertEquals(configs, configManager.getDatabaseConfig());
 
         // Delete json file
         Files.deleteIfExists(configFile);
+    }
+
+    @Test
+    void loadLastRunTimestampTest(){
+        ConfigManager configManager = new ConfigManager();
+        Path lastRunTimestampPath = Path.of("lastRunTimestamp.txt");
+        try {
+            Files.writeString(lastRunTimestampPath, "123456789");
+            configManager.loadLastRunTimestamp(lastRunTimestampPath);
+            assertEquals(123456789, configManager.getLastRunTimestamp());
+            Files.deleteIfExists(lastRunTimestampPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
