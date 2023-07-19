@@ -6,20 +6,20 @@ import java.util.Objects;
 /**
  * Record for storing file information.
  */
-public record FileInfo (
+public record Metadata(
         Path path,
         long lastModified,
         long size,
         String hash
 ) {
     /**
-     * Constructor for FileInfo.
+     * Constructor for Metadata.
      * @param path path of the file
      * @param lastModified last modified time of the file
      * @param size size of the file
      * @param hash hash of the file
      */
-    public FileInfo {
+    public Metadata {
         if (path == null) {
             throw new IllegalArgumentException("path cannot be null");
         }
@@ -37,8 +37,8 @@ public record FileInfo (
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof FileInfo fileInfo)) return false;
-        return lastModified == fileInfo.lastModified && size == fileInfo.size && Objects.equals(path, fileInfo.path) && Objects.equals(hash, fileInfo.hash);
+        if (!(o instanceof Metadata metadata)) return false;
+        return lastModified == metadata.lastModified && size == metadata.size && Objects.equals(path, metadata.path) && Objects.equals(hash, metadata.hash);
     }
 
     @Override
