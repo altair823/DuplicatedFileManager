@@ -1,4 +1,4 @@
-package dto;
+package dto.metadata.file;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

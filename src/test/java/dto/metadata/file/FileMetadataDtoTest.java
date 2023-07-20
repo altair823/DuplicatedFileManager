@@ -1,5 +1,6 @@
-package dto;
+package dto.metadata.file;
 
+import dto.H2DatabaseSetup;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
 
@@ -8,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import static dto.FileMetadataDto.FILE_TB_NAME;
+import static dto.metadata.file.FileMetadataDto.FILE_TB_NAME;
 
 public class FileMetadataDtoTest {
 
