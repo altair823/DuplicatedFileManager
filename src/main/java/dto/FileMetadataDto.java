@@ -9,36 +9,36 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * DTO class for Metadata using SQL database.
+ * DTO class for FileMetadata using SQL database.
  */
-public class MetadataDto {
+public class FileMetadataDto {
     private final Connection connection;
 
     /**
-     * Table name for Metadata.
+     * Table name for FileMetadata.
      */
     public static final String TB_NAME = "file_info";
 
     /**
-     * Constructor for MetadataDto.
+     * Constructor for FileMetadataDto.
      * @param connection connection to the database
      */
-    public MetadataDto(Connection connection) {
+    public FileMetadataDto(Connection connection) {
         this.connection = connection;
     }
 
     /**
      * Insert metadata into the database.
-     * @param Metadata metadata to insert
+     * @param FileMetadata metadata to insert
      * @throws SQLException if a database access error occurs
      */
-    public void insertMetadata(Metadata Metadata) throws SQLException {
+    public void insertMetadata(FileMetadata FileMetadata) throws SQLException {
         String insertQuery = "INSERT INTO " + TB_NAME + " (path, last_modified, size, hash) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            pstmt.setString(1, Metadata.path().toString());
-            pstmt.setLong(2, Metadata.lastModified());
-            pstmt.setLong(3, Metadata.size());
-            pstmt.setString(4, Metadata.hash());
+            pstmt.setString(1, FileMetadata.path().toString());
+            pstmt.setLong(2, FileMetadata.lastModified());
+            pstmt.setLong(3, FileMetadata.size());
+            pstmt.setString(4, FileMetadata.hash());
             pstmt.executeUpdate();
         }
     }
@@ -65,13 +65,13 @@ public class MetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<Metadata> getAllMetadata() throws SQLException {
+    public List<FileMetadata> getAllMetadata() throws SQLException {
         String selectQuery = "SELECT * FROM " + TB_NAME;
-        List<Metadata> result = new LinkedList<>();
+        List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                result.add(new Metadata(
+                result.add(new FileMetadata(
                         Path.of(rs.getString("path")),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
@@ -101,14 +101,14 @@ public class MetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<Metadata> searchMetadataByPath(Path path) throws SQLException {
+    public List<FileMetadata> searchMetadataByPath(Path path) throws SQLException {
         String selectQuery = "SELECT * FROM " + TB_NAME + " WHERE path = ?";
-        List<Metadata> result = new LinkedList<>();
+        List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             pstmt.setString(1, path.toString());
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                result.add(new Metadata(
+                result.add(new FileMetadata(
                         Path.of(rs.getString("path")),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
@@ -125,14 +125,14 @@ public class MetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<Metadata> searchMetadataByHash(String hash) throws SQLException {
+    public List<FileMetadata> searchMetadataByHash(String hash) throws SQLException {
         String selectQuery = "SELECT * FROM " + TB_NAME + " WHERE hash = ?";
-        List<Metadata> result = new LinkedList<>();
+        List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             pstmt.setString(1, hash);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                result.add(new Metadata(
+                result.add(new FileMetadata(
                         Path.of(rs.getString("path")),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
