@@ -1,13 +1,12 @@
 package dto;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
  * Record for storing file information.
  */
 public record FileMetadata(
-        Path path,
+        String path,
         long lastModified,
         long size,
         String hash

@@ -3,7 +3,6 @@ package dto;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -52,7 +51,7 @@ public class FileMetadataDtoTest {
     @Test
     public void getAllPathTest() throws SQLException {
         FileMetadata fileMetadata1 = new FileMetadata(
-                Path.of("Users/John/Desktop/test.txt"),
+                "Users/John/Desktop/test.txt",
                 1234567890,
                 1234567890,
                 "1234567890abcdef"
@@ -60,7 +59,7 @@ public class FileMetadataDtoTest {
         fileMetadataDto.insert(fileMetadata1);
 
         FileMetadata fileMetadata2 = new FileMetadata(
-                Path.of("Users/John/Desktop/test2.txt"),
+                "Users/John/Desktop/test2.txt",
                 987654321,
                 987654321,
                 "fedcba0987654321"
@@ -69,14 +68,14 @@ public class FileMetadataDtoTest {
 
         List<String> result = fileMetadataDto.getAllPath();
         Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(fileMetadata1.path().toString(), result.get(0));
-        Assertions.assertEquals(fileMetadata2.path().toString(), result.get(1));
+        Assertions.assertEquals(fileMetadata1.path(), result.get(0));
+        Assertions.assertEquals(fileMetadata2.path(), result.get(1));
     }
 
     @Test
     void getAllTest() throws SQLException {
         FileMetadata fileMetadata1 = new FileMetadata(
-                Path.of("Users/John/Desktop/test.txt"),
+                "Users/John/Desktop/test.txt",
                 1234567890,
                 1234567890,
                 "1234567890abcdef"
@@ -84,7 +83,7 @@ public class FileMetadataDtoTest {
         fileMetadataDto.insert(fileMetadata1);
 
         FileMetadata fileMetadata2 = new FileMetadata(
-                Path.of("Users/John/Desktop/test2.txt"),
+                "Users/John/Desktop/test2.txt",
                 987654321,
                 987654321,
                 "fedcba0987654321"
@@ -100,7 +99,7 @@ public class FileMetadataDtoTest {
     @Test
     void searchByPathTest() throws SQLException {
         FileMetadata fileMetadata1 = new FileMetadata(
-                Path.of("Users/John/Desktop/test.txt"),
+                "Users/John/Desktop/test.txt",
                 1234567890,
                 1234567890,
                 "1234567890abcdef"
@@ -108,7 +107,7 @@ public class FileMetadataDtoTest {
         fileMetadataDto.insert(fileMetadata1);
 
         FileMetadata fileMetadata2 = new FileMetadata(
-                Path.of("Users/John/Desktop/test2.txt"),
+                "Users/John/Desktop/test2.txt",
                 987654321,
                 987654321,
                 "fedcba0987654321"
@@ -126,7 +125,7 @@ public class FileMetadataDtoTest {
     @Test
     void searchByHashTest() throws SQLException {
         FileMetadata fileMetadata1 = new FileMetadata(
-                Path.of("Users/John/Desktop/test.txt"),
+                "Users/John/Desktop/test.txt",
                 1234567890,
                 1234567890,
                 "1234567890abcdef"
@@ -134,7 +133,7 @@ public class FileMetadataDtoTest {
         fileMetadataDto.insert(fileMetadata1);
 
         FileMetadata fileMetadata2 = new FileMetadata(
-                Path.of("Users/John/Desktop/test2.txt"),
+                "Users/John/Desktop/test2.txt",
                 987654321,
                 987654321,
                 "fedcba0987654321"

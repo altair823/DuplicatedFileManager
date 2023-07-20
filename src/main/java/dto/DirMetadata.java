@@ -1,13 +1,12 @@
 package dto;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
  * Record for storing directory information.
  */
 public record DirMetadata(
-        Path path,
+        String path,
         long lastModified,
         long contentCount
 ) {

@@ -1,6 +1,5 @@
 package dto;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +34,7 @@ public class FileMetadataDto {
     public void insert(FileMetadata FileMetadata) throws SQLException {
         String insertQuery = "INSERT INTO " + FILE_TB_NAME + " (path, last_modified, size, hash) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            pstmt.setString(1, FileMetadata.path().toString());
+            pstmt.setString(1, FileMetadata.path());
             pstmt.setLong(2, FileMetadata.lastModified());
             pstmt.setLong(3, FileMetadata.size());
             pstmt.setString(4, FileMetadata.hash());
@@ -72,7 +71,7 @@ public class FileMetadataDto {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(new FileMetadata(
-                        Path.of(rs.getString("path")),
+                        rs.getString("path"),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
                         rs.getString("hash")
@@ -87,10 +86,10 @@ public class FileMetadataDto {
      * @param path file path to delete
      * @throws SQLException if a database access error occurs
      */
-    public void deleteByPath(Path path) throws SQLException {
+    public void deleteByPath(String path) throws SQLException {
         String deleteQuery = "DELETE FROM " + FILE_TB_NAME + " WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
-            pstmt.setString(1, path.toString());
+            pstmt.setString(1, path);
             pstmt.executeUpdate();
         }
     }
@@ -101,15 +100,15 @@ public class FileMetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> searchByPath(Path path) throws SQLException {
+    public List<FileMetadata> searchByPath(String path) throws SQLException {
         String selectQuery = "SELECT * FROM " + FILE_TB_NAME + " WHERE path = ?";
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
-            pstmt.setString(1, path.toString());
+            pstmt.setString(1, path);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(new FileMetadata(
-                        Path.of(rs.getString("path")),
+                        rs.getString("path"),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
                         rs.getString("hash")
@@ -133,7 +132,7 @@ public class FileMetadataDto {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(new FileMetadata(
-                        Path.of(rs.getString("path")),
+                        rs.getString("path"),
                         rs.getLong("last_modified"),
                         rs.getLong("size"),
                         rs.getString("hash")

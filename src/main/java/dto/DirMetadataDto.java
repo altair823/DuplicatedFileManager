@@ -1,6 +1,5 @@
 package dto;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +28,7 @@ public class DirMetadataDto {
     public void insert(DirMetadata dirMetadata) throws SQLException {
         String insertQuery = "INSERT INTO " + DIR_TB_NAME + " (path, last_modified, content_count) VALUES (?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            pstmt.setString(1, dirMetadata.path().toString());
+            pstmt.setString(1, dirMetadata.path());
             pstmt.setLong(2, dirMetadata.lastModified());
             pstmt.setLong(3, dirMetadata.contentCount());
             pstmt.executeUpdate();
@@ -60,7 +59,7 @@ public class DirMetadataDto {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 result.add(new DirMetadata(
-                        Path.of(rs.getString("path")),
+                        rs.getString("path"),
                         rs.getLong("last_modified"),
                         rs.getLong("content_count")
                 ));

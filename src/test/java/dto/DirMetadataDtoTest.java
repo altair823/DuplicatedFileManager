@@ -3,7 +3,6 @@ package dto;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
 
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -51,13 +50,13 @@ class DirMetadataDtoTest {
     @Test
     void getAllPathTest() throws SQLException {
         DirMetadata dirMetadata1 = new DirMetadata(
-                Path.of("Users/John/Desktop"),
+                "Users/John/Desktop",
                 1234567890,
                 23
         );
         dirMetadataDto.insert(dirMetadata1);
         DirMetadata dirMetadata2 = new DirMetadata(
-                Path.of("Users/John/Desktop/test"),
+                "Users/John/Desktop/test",
                 987654321,
                 56
         );
@@ -65,20 +64,20 @@ class DirMetadataDtoTest {
 
         List<String> allPath = dirMetadataDto.getAllPath();
         Assertions.assertEquals(2, allPath.size());
-        Assertions.assertEquals(dirMetadata1.path().toString(), allPath.get(0));
-        Assertions.assertEquals(dirMetadata2.path().toString(), allPath.get(1));
+        Assertions.assertEquals(dirMetadata1.path(), allPath.get(0));
+        Assertions.assertEquals(dirMetadata2.path(), allPath.get(1));
     }
 
     @Test
     void getAllTest() throws SQLException {
         DirMetadata dirMetadata1 = new DirMetadata(
-                Path.of("Users/John/Desktop"),
+                "Users/John/Desktop",
                 1234567890,
                 23
         );
         dirMetadataDto.insert(dirMetadata1);
         DirMetadata dirMetadata2 = new DirMetadata(
-                Path.of("Users/John/Desktop/test"),
+                "Users/John/Desktop/test",
                 987654321,
                 56
         );
