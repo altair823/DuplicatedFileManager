@@ -17,7 +17,7 @@ public class FileMetadataDto {
     /**
      * Table name for FileMetadata.
      */
-    public static final String TB_NAME = "file_info";
+    public static final String FILE_TB_NAME = "file_metadata";
 
     /**
      * Constructor for FileMetadataDto.
@@ -32,8 +32,8 @@ public class FileMetadataDto {
      * @param FileMetadata metadata to insert
      * @throws SQLException if a database access error occurs
      */
-    public void insertMetadata(FileMetadata FileMetadata) throws SQLException {
-        String insertQuery = "INSERT INTO " + TB_NAME + " (path, last_modified, size, hash) VALUES (?, ?, ?, ?)";
+    public void insert(FileMetadata FileMetadata) throws SQLException {
+        String insertQuery = "INSERT INTO " + FILE_TB_NAME + " (path, last_modified, size, hash) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
             pstmt.setString(1, FileMetadata.path().toString());
             pstmt.setLong(2, FileMetadata.lastModified());
@@ -48,8 +48,8 @@ public class FileMetadataDto {
      * @return list of file path
      * @throws SQLException if a database access error occurs
      */
-    public List<String> getAllFilePath() throws SQLException {
-        String selectQuery = "SELECT path FROM " + TB_NAME;
+    public List<String> getAllPath() throws SQLException {
+        String selectQuery = "SELECT path FROM " + FILE_TB_NAME;
         List<String> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             ResultSet rs = pstmt.executeQuery();
@@ -65,8 +65,8 @@ public class FileMetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> getAllMetadata() throws SQLException {
-        String selectQuery = "SELECT * FROM " + TB_NAME;
+    public List<FileMetadata> getAll() throws SQLException {
+        String selectQuery = "SELECT * FROM " + FILE_TB_NAME;
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             ResultSet rs = pstmt.executeQuery();
@@ -87,8 +87,8 @@ public class FileMetadataDto {
      * @param path file path to delete
      * @throws SQLException if a database access error occurs
      */
-    public void deleteMetadata(Path path) throws SQLException {
-        String deleteQuery = "DELETE FROM " + TB_NAME + " WHERE path = ?";
+    public void deleteByPath(Path path) throws SQLException {
+        String deleteQuery = "DELETE FROM " + FILE_TB_NAME + " WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
             pstmt.setString(1, path.toString());
             pstmt.executeUpdate();
@@ -101,8 +101,8 @@ public class FileMetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> searchMetadataByPath(Path path) throws SQLException {
-        String selectQuery = "SELECT * FROM " + TB_NAME + " WHERE path = ?";
+    public List<FileMetadata> searchByPath(Path path) throws SQLException {
+        String selectQuery = "SELECT * FROM " + FILE_TB_NAME + " WHERE path = ?";
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             pstmt.setString(1, path.toString());
@@ -125,8 +125,8 @@ public class FileMetadataDto {
      * @return list of metadata
      * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> searchMetadataByHash(String hash) throws SQLException {
-        String selectQuery = "SELECT * FROM " + TB_NAME + " WHERE hash = ?";
+    public List<FileMetadata> searchByHash(String hash) throws SQLException {
+        String selectQuery = "SELECT * FROM " + FILE_TB_NAME + " WHERE hash = ?";
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             pstmt.setString(1, hash);
