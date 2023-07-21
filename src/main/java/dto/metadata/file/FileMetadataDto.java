@@ -29,9 +29,8 @@ public class FileMetadataDto {
     /**
      * Insert metadata into the database.
      * @param FileMetadata metadata to insert
-     * @throws SQLException if a database access error occurs
      */
-    public void insert(FileMetadata FileMetadata) throws SQLException {
+    public void insert(FileMetadata FileMetadata) {
         String insertQuery = "INSERT INTO " + FILE_TB_NAME + " (path, last_modified, size, hash) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
             pstmt.setString(1, FileMetadata.path());
@@ -39,15 +38,16 @@ public class FileMetadataDto {
             pstmt.setLong(3, FileMetadata.size());
             pstmt.setString(4, FileMetadata.hash());
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     /**
      * Get all file path list from the database.
      * @return list of file path
-     * @throws SQLException if a database access error occurs
      */
-    public List<String> getAllPath() throws SQLException {
+    public List<String> getAllPath() {
         String selectQuery = "SELECT path FROM " + FILE_TB_NAME;
         List<String> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -55,6 +55,8 @@ public class FileMetadataDto {
             while (rs.next()) {
                 result.add(rs.getString("path"));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
@@ -62,9 +64,8 @@ public class FileMetadataDto {
     /**
      * Get all metadata list from the database.
      * @return list of metadata
-     * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> getAll() throws SQLException {
+    public List<FileMetadata> getAll() {
         String selectQuery = "SELECT * FROM " + FILE_TB_NAME;
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -77,6 +78,8 @@ public class FileMetadataDto {
                         rs.getString("hash")
                 ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
@@ -84,13 +87,14 @@ public class FileMetadataDto {
     /**
      * Delete metadata from the database.
      * @param path file path to delete
-     * @throws SQLException if a database access error occurs
      */
-    public void deleteByPath(String path) throws SQLException {
+    public void deleteByPath(String path) {
         String deleteQuery = "DELETE FROM " + FILE_TB_NAME + " WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
             pstmt.setString(1, path);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -98,9 +102,8 @@ public class FileMetadataDto {
      * Search metadata from the database by file path.
      * @param path file path to search
      * @return list of metadata
-     * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> searchByPath(String path) throws SQLException {
+    public List<FileMetadata> searchByPath(String path) {
         String selectQuery = "SELECT * FROM " + FILE_TB_NAME + " WHERE path = ?";
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -114,6 +117,8 @@ public class FileMetadataDto {
                         rs.getString("hash")
                 ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
@@ -122,9 +127,8 @@ public class FileMetadataDto {
      * Search metadata from the database by hash.
      * @param hash hash to search
      * @return list of metadata
-     * @throws SQLException if a database access error occurs
      */
-    public List<FileMetadata> searchByHash(String hash) throws SQLException {
+    public List<FileMetadata> searchByHash(String hash) {
         String selectQuery = "SELECT * FROM " + FILE_TB_NAME + " WHERE hash = ?";
         List<FileMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -138,7 +142,57 @@ public class FileMetadataDto {
                         rs.getString("hash")
                 ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
+    }
+
+    /**
+     * Update last modified time of the metadata.
+     * @param path file path to update
+     * @param newLastModified new last modified time
+     */
+    public void updateLastModified(String path, long newLastModified) {
+        String updateQuery = "UPDATE " + FILE_TB_NAME + " SET last_modified = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setLong(1, newLastModified);
+            pstmt.setString(2, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update size value in the metadata.
+     * @param path file path to update
+     * @param newSize new size
+     */
+    public void updateSize(String path, long newSize) {
+        String updateQuery = "UPDATE " + FILE_TB_NAME + " SET size = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)){
+            pstmt.setLong(1, newSize);
+            pstmt.setString(2, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update hash value in the metadata.
+     * @param path file path to update
+     * @param newHash new hash
+     */
+    public void updateHash(String path, String newHash) {
+        String updateQuery = "UPDATE " + FILE_TB_NAME + " SET hash = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)){
+            pstmt.setString(1, newHash);
+            pstmt.setString(2, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -15,6 +15,8 @@ public class FileMetadataDtoTest {
 
     private Connection connection;
     private FileMetadataDto fileMetadataDto;
+    FileMetadata fileMetadata1;
+    FileMetadata fileMetadata2;
 
     @BeforeAll
     public static void initWebServer() throws SQLException {
@@ -28,14 +30,30 @@ public class FileMetadataDtoTest {
         fileMetadataDto = new FileMetadataDto(connection);
         String createTableQuery = "CREATE TABLE " + FILE_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "path VARCHAR(255) NOT NULL, " +
+                "path VARCHAR(255) NOT NULL UNIQUE, " +
                 "last_modified BIGINT NOT NULL, " +
                 "size BIGINT NOT NULL, " +
                 "hash VARCHAR(64) NOT NULL);";
-        // 테이블 생성
+
         try (PreparedStatement pstmt = connection.prepareStatement(createTableQuery)) {
             pstmt.execute();
         }
+
+        fileMetadata1 = new FileMetadata(
+                "Users/John/Desktop/test.txt",
+                1234567890,
+                1234567890,
+                "1234567890abcdef"
+        );
+        fileMetadataDto.insert(fileMetadata1);
+
+        fileMetadata2 = new FileMetadata(
+                "Users/John/Desktop/test2.txt",
+                987654321,
+                987654321,
+                "fedcba0987654321"
+        );
+        fileMetadataDto.insert(fileMetadata2);
     }
 
     @AfterEach
@@ -50,23 +68,7 @@ public class FileMetadataDtoTest {
     }
 
     @Test
-    public void getAllPathTest() throws SQLException {
-        FileMetadata fileMetadata1 = new FileMetadata(
-                "Users/John/Desktop/test.txt",
-                1234567890,
-                1234567890,
-                "1234567890abcdef"
-        );
-        fileMetadataDto.insert(fileMetadata1);
-
-        FileMetadata fileMetadata2 = new FileMetadata(
-                "Users/John/Desktop/test2.txt",
-                987654321,
-                987654321,
-                "fedcba0987654321"
-        );
-        fileMetadataDto.insert(fileMetadata2);
-
+    public void getAllPathTest() {
         List<String> result = fileMetadataDto.getAllPath();
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals(fileMetadata1.path(), result.get(0));
@@ -74,23 +76,7 @@ public class FileMetadataDtoTest {
     }
 
     @Test
-    void getAllTest() throws SQLException {
-        FileMetadata fileMetadata1 = new FileMetadata(
-                "Users/John/Desktop/test.txt",
-                1234567890,
-                1234567890,
-                "1234567890abcdef"
-        );
-        fileMetadataDto.insert(fileMetadata1);
-
-        FileMetadata fileMetadata2 = new FileMetadata(
-                "Users/John/Desktop/test2.txt",
-                987654321,
-                987654321,
-                "fedcba0987654321"
-        );
-        fileMetadataDto.insert(fileMetadata2);
-
+    void getAllTest() {
         List<FileMetadata> result = fileMetadataDto.getAll();
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals(fileMetadata1, result.get(0));
@@ -98,23 +84,7 @@ public class FileMetadataDtoTest {
     }
     
     @Test
-    void searchByPathTest() throws SQLException {
-        FileMetadata fileMetadata1 = new FileMetadata(
-                "Users/John/Desktop/test.txt",
-                1234567890,
-                1234567890,
-                "1234567890abcdef"
-        );
-        fileMetadataDto.insert(fileMetadata1);
-
-        FileMetadata fileMetadata2 = new FileMetadata(
-                "Users/John/Desktop/test2.txt",
-                987654321,
-                987654321,
-                "fedcba0987654321"
-        );
-        fileMetadataDto.insert(fileMetadata2);
-
+    void searchByPathTest() {
         List<FileMetadata> result = fileMetadataDto.searchByPath(fileMetadata1.path());
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(fileMetadata1, result.get(0));
@@ -124,23 +94,7 @@ public class FileMetadataDtoTest {
     }
 
     @Test
-    void searchByHashTest() throws SQLException {
-        FileMetadata fileMetadata1 = new FileMetadata(
-                "Users/John/Desktop/test.txt",
-                1234567890,
-                1234567890,
-                "1234567890abcdef"
-        );
-        fileMetadataDto.insert(fileMetadata1);
-
-        FileMetadata fileMetadata2 = new FileMetadata(
-                "Users/John/Desktop/test2.txt",
-                987654321,
-                987654321,
-                "fedcba0987654321"
-        );
-        fileMetadataDto.insert(fileMetadata2);
-
+    void searchByHashTest() {
         List<FileMetadata> result = fileMetadataDto.searchByHash(fileMetadata1.hash());
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(fileMetadata1, result.get(0));
@@ -149,5 +103,32 @@ public class FileMetadataDtoTest {
         Assertions.assertEquals(fileMetadata2, result2.get(0));
         List<FileMetadata> result3 = fileMetadataDto.searchByHash("1234567890abcdef1234567890abcdef");
         Assertions.assertEquals(0, result3.size());
+    }
+
+    @Test
+    void updateLastModifiedTest() {
+        long newLastModified = 666666666;
+        fileMetadataDto.updateLastModified(fileMetadata1.path(), newLastModified);
+        List<FileMetadata> result = fileMetadataDto.searchByPath(fileMetadata1.path());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(newLastModified, result.get(0).lastModified());
+    }
+
+    @Test
+    void updateSizeTest() {
+        long newSize = 444444444;
+        fileMetadataDto.updateSize(fileMetadata1.path(), newSize);
+        List<FileMetadata> result = fileMetadataDto.searchByPath(fileMetadata1.path());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(newSize, result.get(0).size());
+    }
+
+    @Test
+    void updateHashTest() {
+        String newHash = "thisistesthash";
+        fileMetadataDto.updateHash(fileMetadata1.path(), newHash);
+        List<FileMetadata> result = fileMetadataDto.searchByPath(fileMetadata1.path());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(newHash, result.get(0).hash());
     }
 }

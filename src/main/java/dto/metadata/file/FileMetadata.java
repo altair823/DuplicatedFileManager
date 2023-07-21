@@ -33,6 +33,32 @@ public record FileMetadata(
         }
     }
 
+    /**
+     * Get actual file hash.
+     * @param path path of the file
+     * @return actual file hash
+     */
+    public static long getActualFileModifiedTime(String path) {
+        try {
+            return java.nio.file.Files.getLastModifiedTime(java.nio.file.Path.of(path)).toMillis();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Get actual file size.
+     * @param path path of the file
+     * @return actual file size
+     */
+    public static long getActualFileSize(String path) {
+        try {
+            return java.nio.file.Files.size(java.nio.file.Path.of(path));
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

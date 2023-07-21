@@ -46,8 +46,8 @@ public class ModifiedContentSearch {
             if (file.isDirectory()) {
                 if (lastModified > timestamp) {
                     this.dirPaths.add(file.getAbsolutePath());
+                    searchByTime(file, timestamp);
                 }
-                searchByTime(file, timestamp);
             } else {
                 if (lastModified > timestamp) {
                     this.filePaths.add(file.getAbsolutePath());

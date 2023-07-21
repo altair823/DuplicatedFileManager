@@ -15,6 +15,8 @@ class DirMetadataDtoTest {
 
     private Connection connection;
     private DirMetadataDto dirMetadataDto;
+    DirMetadata dirMetadata1;
+    DirMetadata dirMetadata2;
 
     @BeforeAll
     public static void initWebServer() throws SQLException {
@@ -28,13 +30,26 @@ class DirMetadataDtoTest {
         dirMetadataDto = new DirMetadataDto(connection);
         String createTableQuery = "CREATE TABLE " + DIR_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "path VARCHAR(255) NOT NULL, " +
+                "path VARCHAR(255) NOT NULL UNIQUE, " +
                 "last_modified BIGINT NOT NULL, " +
                 "content_count INT NOT NULL);";
-        // 테이블 생성
+
         try (PreparedStatement pstmt = connection.prepareStatement(createTableQuery)) {
             pstmt.execute();
         }
+
+        dirMetadata1 = new DirMetadata(
+                "Users/John/Desktop",
+                1234567890,
+                23
+        );
+        dirMetadataDto.insert(dirMetadata1);
+        dirMetadata2 = new DirMetadata(
+                "Users/John/Desktop/test",
+                987654321,
+                56
+        );
+        dirMetadataDto.insert(dirMetadata2);
     }
 
     @AfterEach
@@ -49,19 +64,7 @@ class DirMetadataDtoTest {
     }
 
     @Test
-    void getAllPathTest() throws SQLException {
-        DirMetadata dirMetadata1 = new DirMetadata(
-                "Users/John/Desktop",
-                1234567890,
-                23
-        );
-        dirMetadataDto.insert(dirMetadata1);
-        DirMetadata dirMetadata2 = new DirMetadata(
-                "Users/John/Desktop/test",
-                987654321,
-                56
-        );
-        dirMetadataDto.insert(dirMetadata2);
+    void getAllPathTest() {
 
         List<String> allPath = dirMetadataDto.getAllPath();
         Assertions.assertEquals(2, allPath.size());
@@ -70,23 +73,36 @@ class DirMetadataDtoTest {
     }
 
     @Test
-    void getAllTest() throws SQLException {
-        DirMetadata dirMetadata1 = new DirMetadata(
-                "Users/John/Desktop",
-                1234567890,
-                23
-        );
-        dirMetadataDto.insert(dirMetadata1);
-        DirMetadata dirMetadata2 = new DirMetadata(
-                "Users/John/Desktop/test",
-                987654321,
-                56
-        );
-        dirMetadataDto.insert(dirMetadata2);
-
+    void getAllTest() {
         List<DirMetadata> all = dirMetadataDto.getAll();
         Assertions.assertEquals(2, all.size());
         Assertions.assertEquals(dirMetadata1, all.get(0));
         Assertions.assertEquals(dirMetadata2, all.get(1));
+    }
+
+    @Test
+    void searchByPathTest() {
+        List<DirMetadata> searchResult = dirMetadataDto.searchByPath(dirMetadata1.path());
+        Assertions.assertEquals(dirMetadata1, searchResult.get(0));
+    }
+
+    @Test
+    void updateContentCountTest() {
+        dirMetadataDto.updateContentCount(dirMetadata1.path(), 100);
+        List<DirMetadata> searchResult = dirMetadataDto.searchByPath(dirMetadata1.path());
+        Assertions.assertEquals(100, searchResult.get(0).contentCount());
+        dirMetadataDto.updateContentCount(dirMetadata2.path(), 0);
+        searchResult = dirMetadataDto.searchByPath(dirMetadata2.path());
+        Assertions.assertEquals(0, searchResult.get(0).contentCount());
+    }
+
+    @Test
+    void updateLastModifiedTest() {
+        dirMetadataDto.updateLastModified(dirMetadata1.path(), 10000);
+        List<DirMetadata> searchResult = dirMetadataDto.searchByPath(dirMetadata1.path());
+        Assertions.assertEquals(10000, searchResult.get(0).lastModified());
+        dirMetadataDto.updateLastModified(dirMetadata2.path(), 0);
+        searchResult = dirMetadataDto.searchByPath(dirMetadata2.path());
+        Assertions.assertEquals(0, searchResult.get(0).lastModified());
     }
 }

@@ -23,24 +23,24 @@ public class DirMetadataDto {
     /**
      * Insert metadata into the database.
      * @param dirMetadata metadata to insert
-     * @throws SQLException if a database access error occurs
      */
-    public void insert(DirMetadata dirMetadata) throws SQLException {
+    public void insert(DirMetadata dirMetadata) {
         String insertQuery = "INSERT INTO " + DIR_TB_NAME + " (path, last_modified, content_count) VALUES (?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
             pstmt.setString(1, dirMetadata.path());
             pstmt.setLong(2, dirMetadata.lastModified());
             pstmt.setLong(3, dirMetadata.contentCount());
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     /**
      * Get all directory path list from the database.
      * @return list of file path
-     * @throws SQLException if a database access error occurs
      */
-    public List<String> getAllPath() throws SQLException {
+    public List<String> getAllPath() {
         String selectQuery = "SELECT path FROM " + DIR_TB_NAME;
         List<String> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -48,11 +48,17 @@ public class DirMetadataDto {
             while (rs.next()) {
                 result.add(rs.getString("path"));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
     }
 
-    public List<DirMetadata> getAll() throws SQLException {
+    /**
+     * Get all directory metadata from the database.
+     * @return list of directory metadata
+     */
+    public List<DirMetadata> getAll() {
         String selectQuery = "SELECT * FROM " + DIR_TB_NAME;
         List<DirMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
@@ -64,7 +70,55 @@ public class DirMetadataDto {
                         rs.getLong("content_count")
                 ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return result;
+    }
+
+    /**
+     * Get directory metadata by path from the database.
+     * @param path path of the directory
+     * @return list of directory metadata
+     */
+    public List<DirMetadata> searchByPath(String path) {
+        String selectQuery = "SELECT * FROM " + DIR_TB_NAME + " WHERE path LIKE ?";
+        List<DirMetadata> result = new LinkedList<>();
+        try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
+            pstmt.setString(1, path);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                result.add(new DirMetadata(
+                        rs.getString("path"),
+                        rs.getLong("last_modified"),
+                        rs.getLong("content_count")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public void updateContentCount(String path, long currentContentCount) {
+        String updateQuery = "UPDATE " + DIR_TB_NAME + " SET content_count = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setLong(1, currentContentCount);
+            pstmt.setString(2, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateLastModified(String path, long currentLastModified) {
+        String updateQuery = "UPDATE " + DIR_TB_NAME + " SET last_modified = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setLong(1, currentLastModified);
+            pstmt.setString(2, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
