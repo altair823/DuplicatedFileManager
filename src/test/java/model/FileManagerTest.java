@@ -33,8 +33,8 @@ class FileManagerTest {
 
     @BeforeAll
     public static void initWebServer() throws SQLException {
-        Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8084")
-                .start();
+//        Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8084")
+//                .start();
     }
 
     @BeforeEach
