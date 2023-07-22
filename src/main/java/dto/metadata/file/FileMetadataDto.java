@@ -148,6 +148,19 @@ public class FileMetadataDto {
         return result;
     }
 
+    public void updateByPath(String path, FileMetadata newMetadata) {
+        String updateQuery = "UPDATE " + FILE_TB_NAME + " SET last_modified = ?, size = ?, hash = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setLong(1, newMetadata.lastModified());
+            pstmt.setLong(2, newMetadata.size());
+            pstmt.setString(3, newMetadata.hash());
+            pstmt.setString(4, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Update last modified time of the metadata.
      * @param path file path to update

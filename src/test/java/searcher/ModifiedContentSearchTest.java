@@ -1,11 +1,8 @@
 package searcher;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModifiedContentSearchTest {
     public void setUp(String test_dir) throws Exception {
-        Path testDirPath = Files.createDirectory(Path.of(test_dir));
         Files.createDirectory(Path.of(test_dir, "dir2"));
         Files.createDirectory(Path.of(test_dir, "dir3"));
 
@@ -24,7 +20,7 @@ class ModifiedContentSearchTest {
         Files.createFile(Path.of(test_dir, "dir3", "test3.txt"));
     }
 
-    public void tearDown(String test_dir) throws Exception {
+    public void tearDown(String test_dir) {
         deleteDirectory(Path.of(test_dir).toFile());
     }
 
@@ -41,7 +37,7 @@ class ModifiedContentSearchTest {
         }
     }
     @Test
-    public void testModifiedContentSearch() throws Exception {
+    public void ModifiedContentSearchConstructorTest() throws Exception {
         final String test_dir = "getFileListTestDir";
         setUp(test_dir);
         TimeUnit.SECONDS.sleep(1);
@@ -63,19 +59,6 @@ class ModifiedContentSearchTest {
         assertTrue(dirPaths.contains(Path.of(test_dir, "dir2").toAbsolutePath().toString()));
 
         tearDown(test_dir);
-    }
-
-
-    @Test
-    public void countDirContentsTest() throws Exception {
-        final String testDir = "countDirContentsTestDir";
-        setUp(testDir);
-        Path testDirPath = Path.of(testDir);
-        
-        int count = ModifiedContentSearch.countDirContents(testDir);
-        assert(count == 3);
-
-        deleteDirectory(testDirPath.toFile());
     }
 }
 

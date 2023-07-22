@@ -8,11 +8,8 @@ import dto.metadata.file.FileMetadataDto;
 import hasher.Hasher;
 import searcher.ModifiedContentSearch;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class FileManager {
 
@@ -26,20 +23,30 @@ public class FileManager {
     public FileManager(ConfigManager configManager, Hasher hasher) {
         this.configManager = configManager;
         this.hasher = hasher;
+        try {
+            configManager.loadLastRunTimestamp();
+        } catch (IOException e) {
+            configManager.setLastRunTimestamp(System.currentTimeMillis());
+        }
+    }
+
+    public void updateAll(
+            String rootPath,
+            DirMetadataDto dirMetadataDto,
+            FileMetadataDto fileMetadataDto) {
+
     }
 
     public List<FileMetadata> updateModifiedContentPaths(
             String rootPath,
             DirMetadataDto dirMetadataDto,
             FileMetadataDto fileMetadataDto) {
-        try {
-            configManager.loadLastRunTimestamp();
-        } catch (IOException e) {
-            configManager.setLastRunTimestamp(System.currentTimeMillis());
-        }
-        long timestamp = configManager.getLastRunTimestamp();
+
         // Search modified contents
-        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch(rootPath, timestamp);
+        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch(
+                rootPath,
+                configManager.getLastRunTimestamp()
+        );
         this.modifiedDirPaths = modifiedContentSearch.getDirPaths();
         this.modifiedFilePaths = modifiedContentSearch.getFilePaths();
         // Update modified directories
@@ -79,49 +86,30 @@ public class FileManager {
 
 
     private List<FileMetadata> updateModifiedFile(FileMetadataDto fileMetadataDto) {
-        List<FileMetadata> result = new LinkedList<>();
+        Set<FileMetadata> result = new HashSet<>();
         if (!modifiedFilePaths.isEmpty()) {
             for (String modifiedFilePath : modifiedFilePaths) {
-                FileMetadata modifiedFileMetadata;
-                try {
-                    modifiedFileMetadata = new FileMetadata(
-                            modifiedFilePath,
-                            FileMetadata.getActualFileModifiedTime(modifiedFilePath),
-                            FileMetadata.getActualFileSize(modifiedFilePath),
-                            hasher.makeHash(new FileInputStream(modifiedFilePath))
-                    );
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-                List<FileMetadata> metadataInDB;
-                metadataInDB = fileMetadataDto.searchByPath(modifiedFilePath);
+                FileMetadata modifiedFileMetadata = FileMetadata.create(modifiedFilePath, hasher);
+                List<FileMetadata> dupPathMetadataInDB = fileMetadataDto.searchByPath(modifiedFilePath);
+
                 // If the file is in the database,
                 // check if the file has been modified or not.
-                if (!metadataInDB.isEmpty()) {
-                    for (FileMetadata metadata : metadataInDB) {
+                if (!dupPathMetadataInDB.isEmpty()) {
+                    for (FileMetadata metadata : dupPathMetadataInDB) {
                         if (!metadata.hash().equals(modifiedFileMetadata.hash())) {
-                            fileMetadataDto.updateLastModified(metadata.path(), modifiedFileMetadata.lastModified());
-                            fileMetadataDto.updateSize(metadata.path(), modifiedFileMetadata.size());
-                            fileMetadataDto.updateHash(metadata.path(), modifiedFileMetadata.hash());
+                            fileMetadataDto.updateByPath(modifiedFilePath, modifiedFileMetadata);
                         }
                     }
                 }
                 // If the file is not in the database,
-                // calculate hash and search the database by hash.
+                // search the database by hash.
                 else {
                     List<FileMetadata> metadataList = fileMetadataDto.searchByHash(modifiedFileMetadata.hash());
                     // If the hash is not in the database,
                     // file is a new file.
                     // Insert the file into the database.
                     if (metadataList.isEmpty()) {
-                        fileMetadataDto.insert(
-                                new FileMetadata(
-                                        modifiedFilePath,
-                                        modifiedFileMetadata.lastModified(),
-                                        modifiedFileMetadata.size(),
-                                        modifiedFileMetadata.hash()
-                                )
-                        );
+                        fileMetadataDto.insert(modifiedFileMetadata);
                     }
                     // If the hash is in the database,
                     // the file is a duplicate file.
@@ -131,6 +119,7 @@ public class FileManager {
                     else {
                         for (FileMetadata metadata : metadataList) {
                             if (!metadata.path().equals(modifiedFilePath)) {
+                                result.add(metadata);
                                 result.add(modifiedFileMetadata);
                             }
                         }
@@ -138,7 +127,7 @@ public class FileManager {
                 }
             }
         }
-        return result;
+        return result.isEmpty() ? new ArrayList<>() : new ArrayList<>(result);
     }
 }
 

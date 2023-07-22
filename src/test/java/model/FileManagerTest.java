@@ -91,7 +91,8 @@ class FileManagerTest {
                 Path filePath = folderPath.resolve(fileName);
 
                 if (!Files.exists(filePath)) {
-                    String fileContent = generateRandomString();
+//                    String fileContent = generateRandomString();
+                    String fileContent = generateNonRandomString();
                     Files.write(filePath, fileContent.getBytes());
                 }
             }
@@ -121,7 +122,8 @@ class FileManagerTest {
                 Path filePath = folderPath.resolve(fileName);
 
                 if (!Files.exists(filePath)) {
-                    String fileContent = generateRandomString();
+//                    String fileContent = generateRandomString();
+                    String fileContent = generateNonRandomString();
                     Files.write(filePath, fileContent.getBytes());
                 }
             }
@@ -154,6 +156,10 @@ class FileManagerTest {
         }
 
         return sb.toString();
+    }
+
+    private static String generateNonRandomString() {
+        return String.valueOf('A').repeat(100);
     }
 
     @AfterEach

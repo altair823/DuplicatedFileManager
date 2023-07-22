@@ -1,5 +1,9 @@
 package dto.metadata.file;
 
+import hasher.Hasher;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Objects;
 
 /**
@@ -30,6 +34,24 @@ public record FileMetadata(
         }
         if (hash == null) {
             throw new IllegalArgumentException("hash cannot be null");
+        }
+    }
+
+    /**
+     * Create FileMetadata object.
+     * @param path path of the file
+     * @return FileMetadata object
+     */
+    public static FileMetadata create(String path, Hasher hasher) {
+        try {
+            return new FileMetadata(
+                    path,
+                    getActualFileModifiedTime(path),
+                    getActualFileSize(path),
+                    hasher.makeHash(new FileInputStream(path))
+            );
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
