@@ -3,6 +3,7 @@ package model;
 import dto.ConfigManager;
 import dto.H2DatabaseSetup;
 import dto.metadata.dir.DirMetadataDto;
+import dto.metadata.file.FileMetadata;
 import dto.metadata.file.FileMetadataDto;
 import hasher.Hasher;
 import hasher.Md5Hasher;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Random;
 
 import static dto.metadata.dir.DirMetadataDto.DIR_TB_NAME;
@@ -38,13 +40,22 @@ class FileManagerTest {
     @BeforeEach
     public void setup() throws SQLException, IOException {
         connection = H2DatabaseSetup.createConnection();
-        String createTableQuery = "CREATE TABLE " + DIR_TB_NAME +
+        String createDirMetadataTableQuery = "CREATE TABLE " + DIR_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "path VARCHAR(255) NOT NULL UNIQUE, " +
                 "last_modified BIGINT NOT NULL, " +
                 "content_count INT NOT NULL);";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(createTableQuery)) {
+        try (PreparedStatement pstmt = connection.prepareStatement(createDirMetadataTableQuery)) {
+            pstmt.execute();
+        }
+        String createFileMetadataTableQuery = "CREATE TABLE " + FileMetadataDto.FILE_TB_NAME +
+                "(id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "path VARCHAR(255) NOT NULL UNIQUE, " +
+                "last_modified BIGINT NOT NULL, " +
+                "size BIGINT NOT NULL, " +
+                "hash VARCHAR(255) NOT NULL);";
+        try (PreparedStatement pstmt = connection.prepareStatement(createFileMetadataTableQuery)) {
             pstmt.execute();
         }
 
@@ -115,7 +126,6 @@ class FileManagerTest {
                 }
             }
 
-            // 폴더 내의 서브폴더들에 대해 재귀 호출
             try (var stream = Files.newDirectoryStream(folderPath)) {
                 int i = 0;
                 for (Path subPath : stream) {
@@ -179,7 +189,8 @@ class FileManagerTest {
         FileManager fileManager = new FileManager(configManager, hasher);
         DirMetadataDto dirMetadataDto = new DirMetadataDto(connection);
         FileMetadataDto fileMetadataDto = new FileMetadataDto(connection);
-        fileManager.updateModifiedContentPaths("DummyFolder1", dirMetadataDto, fileMetadataDto);
-
+        List<FileMetadata> result = fileManager.updateModifiedContentPaths("DummyFolder1", dirMetadataDto, fileMetadataDto);
+        System.out.println(result);
+        
     }
 }
