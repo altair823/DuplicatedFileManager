@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModifiedContentSearchTest {
     public void setUp(String test_dir) throws Exception {
+        Files.createDirectory(Path.of(test_dir));
         Files.createDirectory(Path.of(test_dir, "dir2"));
         Files.createDirectory(Path.of(test_dir, "dir3"));
 

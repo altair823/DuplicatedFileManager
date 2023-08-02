@@ -30,6 +30,18 @@ public record DirMetadata(
         }
     }
 
+    /**
+     * Create DirMetadata object.
+     * @param path path of the directory
+     * @return DirMetadata object
+     */
+    public static DirMetadata create(String path) {
+        return new DirMetadata(
+                path,
+                getActualDirModifiedTime(path),
+                getActualDirContentCount(path)
+        );
+    }
 
     /**
      * Get actual directory content count.

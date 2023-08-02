@@ -19,12 +19,7 @@ public class Md5Hasher implements Hasher {
      */
     private static final int BUFFER_SIZE = 1024;
 
-    /**
-     * Make hash from input stream
-     *
-     * @param stream input stream
-     * @return hash value
-     */
+    @Override
     public String makeHash(InputStream stream){
         try {
             final MessageDigest innerHash = MessageDigest.getInstance("MD5");

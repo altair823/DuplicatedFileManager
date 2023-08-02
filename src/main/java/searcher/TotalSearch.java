@@ -4,16 +4,13 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Search all files and directories recursively
+ */
 public class TotalSearch {
 
-    /**
-     * List of directory paths
-     */
     private final List<String> dirPaths;
 
-    /**
-     * List of file paths
-     */
     private final List<String> filePaths;
 
     /**

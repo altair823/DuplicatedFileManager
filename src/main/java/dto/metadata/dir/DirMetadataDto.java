@@ -16,6 +16,10 @@ public class DirMetadataDto {
      */
     public static final String DIR_TB_NAME = "dir_metadata";
 
+    /**
+     * Constructor for DirMetadataDto.
+     * @param connection connection to the database
+     */
     public DirMetadataDto(Connection connection) {
         this.connection = connection;
     }
@@ -100,6 +104,29 @@ public class DirMetadataDto {
         return result;
     }
 
+    /**
+     * Update directory metadata by path.
+     * @param path path of the directory
+     * @param dirMetadata new directory metadata
+     */
+    public void updateByPath(String path, DirMetadata dirMetadata) {
+        String updateQuery = "UPDATE " + DIR_TB_NAME + " SET path = ?, last_modified = ?, content_count = ? WHERE path = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setString(1, dirMetadata.path());
+            pstmt.setLong(2, dirMetadata.lastModified());
+            pstmt.setLong(3, dirMetadata.contentCount());
+            pstmt.setString(4, path);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Update content count of the directory by path.
+     * @param path path of the directory
+     * @param currentContentCount new content count of the directory
+     */
     public void updateContentCount(String path, long currentContentCount) {
         String updateQuery = "UPDATE " + DIR_TB_NAME + " SET content_count = ? WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
@@ -111,6 +138,11 @@ public class DirMetadataDto {
         }
     }
 
+    /**
+     * Update last modified time of the directory by path.
+     * @param path path of the directory
+     * @param currentLastModified new last modified time of the directory
+     */
     public void updateLastModified(String path, long currentLastModified) {
         String updateQuery = "UPDATE " + DIR_TB_NAME + " SET last_modified = ? WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {

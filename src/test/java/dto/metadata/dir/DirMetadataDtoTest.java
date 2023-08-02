@@ -105,4 +105,28 @@ class DirMetadataDtoTest {
         searchResult = dirMetadataDto.searchByPath(dirMetadata2.path());
         Assertions.assertEquals(0, searchResult.get(0).lastModified());
     }
+
+    @Test
+    void insertTest() {
+        DirMetadata dirMetadata3 = new DirMetadata(
+                "Users/John/Desktop/test2",
+                987654321,
+                56
+        );
+        dirMetadataDto.insert(dirMetadata3);
+        List<DirMetadata> searchResult = dirMetadataDto.searchByPath(dirMetadata3.path());
+        Assertions.assertEquals(dirMetadata3, searchResult.get(0));
+    }
+
+    @Test
+    void updateByPathTest() {
+        DirMetadata dirMetadata3 = new DirMetadata(
+                "Users/John/Desktop/test", // same path as dirMetadata2
+                28381298, // different last modified
+                315135 // different content count
+        );
+        dirMetadataDto.updateByPath(dirMetadata3.path(), dirMetadata3);
+        List<DirMetadata> searchResult = dirMetadataDto.searchByPath(dirMetadata3.path());
+        Assertions.assertEquals(dirMetadata3, searchResult.get(0));
+    }
 }

@@ -83,20 +83,6 @@ public class FileMetadataDto {
         }
         return result;
     }
-    
-    /**
-     * Delete metadata from the database.
-     * @param path file path to delete
-     */
-    public void deleteByPath(String path) {
-        String deleteQuery = "DELETE FROM " + FILE_TB_NAME + " WHERE path = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(deleteQuery)) {
-            pstmt.setString(1, path);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Search metadata from the database by file path.
@@ -148,6 +134,11 @@ public class FileMetadataDto {
         return result;
     }
 
+    /**
+     * Update metadata by file path.
+     * @param path file path to update
+     * @param newMetadata new metadata
+     */
     public void updateByPath(String path, FileMetadata newMetadata) {
         String updateQuery = "UPDATE " + FILE_TB_NAME + " SET last_modified = ?, size = ?, hash = ? WHERE path = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {

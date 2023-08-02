@@ -2,16 +2,16 @@ package model;
 
 import dto.ConfigManager;
 import dto.H2DatabaseSetup;
+import dto.metadata.dir.DirMetadata;
 import dto.metadata.dir.DirMetadataDto;
 import dto.metadata.file.FileMetadata;
 import dto.metadata.file.FileMetadataDto;
 import hasher.Hasher;
 import hasher.Md5Hasher;
 import org.h2.tools.Server;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import searcher.ModifiedContentSearch;
+import searcher.TotalSearch;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.Random;
 
 import static dto.metadata.dir.DirMetadataDto.DIR_TB_NAME;
+import static dto.metadata.file.FileMetadataDto.FILE_TB_NAME;
 
 class FileManagerTest {
 
     private Connection connection;
 
+    DirMetadataDto dirMetadataDto;
+    FileMetadataDto fileMetadataDto;
 
     @BeforeAll
     public static void initWebServer() throws SQLException {
@@ -40,6 +43,8 @@ class FileManagerTest {
     @BeforeEach
     public void setup() throws SQLException, IOException {
         connection = H2DatabaseSetup.createConnection();
+        dirMetadataDto = new DirMetadataDto(connection);
+        fileMetadataDto = new FileMetadataDto(connection);
         String createDirMetadataTableQuery = "CREATE TABLE " + DIR_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "path VARCHAR(255) NOT NULL UNIQUE, " +
@@ -49,7 +54,7 @@ class FileManagerTest {
         try (PreparedStatement pstmt = connection.prepareStatement(createDirMetadataTableQuery)) {
             pstmt.execute();
         }
-        String createFileMetadataTableQuery = "CREATE TABLE " + FileMetadataDto.FILE_TB_NAME +
+        String createFileMetadataTableQuery = "CREATE TABLE " + FILE_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "path VARCHAR(255) NOT NULL UNIQUE, " +
                 "last_modified BIGINT NOT NULL, " +
@@ -58,6 +63,7 @@ class FileManagerTest {
         try (PreparedStatement pstmt = connection.prepareStatement(createFileMetadataTableQuery)) {
             pstmt.execute();
         }
+
 
         try {
             createFoldersWithDummyFiles();
@@ -82,7 +88,7 @@ class FileManagerTest {
 
     private static void createFoldersRecursive(Path folderPath, int depth, int numFiles, String baseFileName) {
         try {
-            if (!Files.exists(folderPath)) {
+            if (!folderPath.toFile().isDirectory()) {
                 Files.createDirectory(folderPath);
             }
 
@@ -90,7 +96,7 @@ class FileManagerTest {
                 String fileName = baseFileName + i + ".txt";
                 Path filePath = folderPath.resolve(fileName);
 
-                if (!Files.exists(filePath)) {
+                if (!filePath.toFile().isFile()) {
 //                    String fileContent = generateRandomString();
                     String fileContent = generateNonRandomString();
                     Files.write(filePath, fileContent.getBytes());
@@ -121,7 +127,7 @@ class FileManagerTest {
                 String fileName = baseFileName + i + ".txt";
                 Path filePath = folderPath.resolve(fileName);
 
-                if (!Files.exists(filePath)) {
+                if (!filePath.toFile().isFile()) {
 //                    String fileContent = generateRandomString();
                     String fileContent = generateNonRandomString();
                     Files.write(filePath, fileContent.getBytes());
@@ -168,6 +174,10 @@ class FileManagerTest {
         try (PreparedStatement pstmt = connection.prepareStatement(dropTableQuery)) {
             pstmt.execute();
         }
+        dropTableQuery = "DROP TABLE IF EXISTS " + FILE_TB_NAME + ";";
+        try (PreparedStatement pstmt = connection.prepareStatement(dropTableQuery)) {
+            pstmt.execute();
+        }
         if (connection != null) {
             connection.close();
         }
@@ -193,10 +203,42 @@ class FileManagerTest {
         ConfigManager configManager = new ConfigManager();
         Hasher hasher = new Md5Hasher();
         FileManager fileManager = new FileManager(configManager, hasher);
-        DirMetadataDto dirMetadataDto = new DirMetadataDto(connection);
-        FileMetadataDto fileMetadataDto = new FileMetadataDto(connection);
-        List<FileMetadata> result = fileManager.updateModifiedContentPaths("DummyFolder1", dirMetadataDto, fileMetadataDto);
-        System.out.println(result);
-        
+        fileManager.updateModifiedContent("DummyFolder1", dirMetadataDto, fileMetadataDto);
+        List<FileMetadata> result = fileManager.getDuplicateFiles();
+
+        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch("DummyFolder1", configManager.getLastRunTimestamp());
+        List<String> dirPaths = modifiedContentSearch.getDirPaths();
+
+        List<DirMetadata> expectedDirMetadataList = dirPaths.stream().map(DirMetadata::create).toList();
+
+        List<DirMetadata> dirMetadataList = dirMetadataDto.getAll();
+        List<FileMetadata> fileMetadataList = fileMetadataDto.getAll();
+
+        Assertions.assertEquals(expectedDirMetadataList, dirMetadataList);
+        String hash = fileMetadataList.get(0).hash(); // There should be only one file in database, and all hash should be the same.
+        for (FileMetadata fileMetadata : result) {
+            Assertions.assertEquals(fileMetadata.hash(), hash);
+        }
+    }
+
+    @Test
+    void updateAllTest() {
+        ConfigManager configManager = new ConfigManager();
+        Hasher hasher = new Md5Hasher();
+        FileManager fileManager = new FileManager(configManager, hasher);
+        fileManager.updateAll("DummyFolder1", dirMetadataDto, fileMetadataDto);
+
+        TotalSearch totalSearch = new TotalSearch("DummyFolder1");
+        List<String> dirPaths = totalSearch.getDirPaths();
+        List<String> filePaths = totalSearch.getFilePaths();
+
+        List<DirMetadata> expectedDirMetadataList = dirPaths.stream().map(DirMetadata::create).toList();
+        List<FileMetadata> expectedFileMetadataList = filePaths.stream().map(f -> FileMetadata.create(f, hasher)).toList();
+
+        List<DirMetadata> dirMetadataList = dirMetadataDto.getAll();
+        List<FileMetadata> fileMetadataList = fileMetadataDto.getAll();
+
+        Assertions.assertEquals(expectedDirMetadataList, dirMetadataList);
+        Assertions.assertEquals(expectedFileMetadataList, fileMetadataList);
     }
 }
