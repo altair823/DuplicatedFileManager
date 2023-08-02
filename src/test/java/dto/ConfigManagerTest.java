@@ -45,7 +45,7 @@ class ConfigManagerTest {
         Path lastRunTimestampPath = Path.of("lastRunTimestamp.txt");
         try {
             Files.writeString(lastRunTimestampPath, "123456789");
-            configManager.loadLastRunTimestamp(lastRunTimestampPath);
+            configManager.loadLastRunTimestamp();
             assertEquals(123456789, configManager.getLastRunTimestamp());
             Files.deleteIfExists(lastRunTimestampPath);
         } catch (IOException e) {

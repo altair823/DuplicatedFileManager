@@ -1,13 +1,14 @@
-package dto;
+package dto.metadata.dir;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Record for storing directory information.
  */
 public record DirMetadata(
-        Path path,
+        String path,
         long lastModified,
         long contentCount
 ) {
@@ -28,6 +29,46 @@ public record DirMetadata(
             throw new IllegalArgumentException("contentCount cannot be negative");
         }
     }
+
+    /**
+     * Create DirMetadata object.
+     * @param path path of the directory
+     * @return DirMetadata object
+     */
+    public static DirMetadata create(String path) {
+        return new DirMetadata(
+                path,
+                getActualDirModifiedTime(path),
+                getActualDirContentCount(path)
+        );
+    }
+
+    /**
+     * Get actual directory content count.
+     * @param path path of the directory
+     * @return actual directory content count
+     */
+    public static long getActualDirContentCount(String path) {
+        try (Stream<Path> contents = java.nio.file.Files.list(Path.of(path))) {
+            return contents.count();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Get actual directory modified time.
+     * @param path path of the directory
+     * @return actual directory modified time
+     */
+    public static long getActualDirModifiedTime(String path) {
+        try {
+            return java.nio.file.Files.getLastModifiedTime(Path.of(path)).toMillis();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

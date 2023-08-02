@@ -10,6 +10,8 @@ import java.nio.file.Path;
  */
 public class ConfigManager {
 
+    public static final String TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
+
     private long lastRunTimestamp;
 
     private DatabaseConfig databaseConfig;
@@ -23,13 +25,29 @@ public class ConfigManager {
 
     /**
      * Load last run timestamp from file
-     * @param lastRunTimestampPath path to last run timestamp file
      * @throws IOException if error occurs
      */
-    public void loadLastRunTimestamp(Path lastRunTimestampPath) throws IOException {
-        byte[] rawByteData = Files.readAllBytes(lastRunTimestampPath);
+    public void loadLastRunTimestamp() throws IOException {
+        byte[] rawByteData = Files.readAllBytes(Path.of(TIMESTAMP_FILE_NAME));
         String strData = new String(rawByteData, StandardCharsets.UTF_8);
         lastRunTimestamp = Long.parseLong(strData);
+    }
+
+    /**
+     * Set last run timestamp
+     * @param timestamp timestamp to set
+     */
+    public void setLastRunTimestamp(long timestamp) {
+        lastRunTimestamp = timestamp;
+    }
+
+    /**
+     * Create new last run timestamp file
+     * @param timestamp timestamp to write
+     * @throws IOException if error occurs
+     */
+    public static void createNewLastRunTimestamp(long timestamp) throws IOException {
+        Files.writeString(Path.of(TIMESTAMP_FILE_NAME), String.valueOf(timestamp));
     }
 
     /**

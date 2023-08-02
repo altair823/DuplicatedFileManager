@@ -1,57 +1,41 @@
 package searcher;
 
 import java.io.File;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Search modified contents
+ * Search all files and directories recursively
  */
-public class ModifiedContentSearch {
+public class TotalSearch {
 
-    /**
-     * List of directory paths
-     */
     private final List<String> dirPaths;
 
-    /**
-     * List of file paths
-     */
     private final List<String> filePaths;
 
     /**
      * Constructor
      * Files and directories modified after the timestamp are searched recursively when this object is created.
      * @param rootPath root path to search
-     * @param timestamp timestamp to compare
      */
-    public ModifiedContentSearch(String rootPath, long timestamp) {
+    public TotalSearch(String rootPath) {
         this.dirPaths = new LinkedList<>();
         this.filePaths = new LinkedList<>();
         File root = new File(rootPath);
-        searchByTime(root, timestamp);
+        searchAll(root);
     }
 
-    /**
-     * Search by time
-     * @param currentDir current directory
-     * @param timestamp timestamp to compare
-     */
-    private void searchByTime(File currentDir, long timestamp) {
-        File[] files = currentDir.listFiles();
+    private void searchAll(File root) {
+        File[] files = root.listFiles();
         if (files == null) {
             return;
         }
         for (File file : files) {
-            long lastModified = file.lastModified();
             if (file.isDirectory()) {
-                if (lastModified > timestamp) {
-                    this.dirPaths.add(file.getAbsolutePath());
-                    searchByTime(file, timestamp);
-                }
+                this.dirPaths.add(file.getAbsolutePath());
+                searchAll(file);
             } else {
-                if (lastModified > timestamp) {
-                    this.filePaths.add(file.getAbsolutePath());
-                }
+                this.filePaths.add(file.getAbsolutePath());
             }
         }
     }

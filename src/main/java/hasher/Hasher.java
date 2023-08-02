@@ -13,7 +13,5 @@ public interface Hasher {
      * @param stream input stream
      * @return hash value
      */
-    static byte[] makeHash(InputStream stream) {
-        return new byte[0];
-    }
+    String makeHash(InputStream stream);
 }
