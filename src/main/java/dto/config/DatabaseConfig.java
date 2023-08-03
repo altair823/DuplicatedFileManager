@@ -1,4 +1,4 @@
-package dto;
+package dto.config;
 
 import com.google.gson.GsonBuilder;
 import java.util.Objects;

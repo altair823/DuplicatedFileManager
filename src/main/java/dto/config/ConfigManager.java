@@ -1,4 +1,4 @@
-package dto;
+package dto.config;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +11,8 @@ import java.nio.file.Path;
 public class ConfigManager {
 
     public static final String TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
+
+    public static final String DB_CONFIG_FILE_NAME = "dbConfig.json";
 
     private long lastRunTimestamp;
 

@@ -1,4 +1,4 @@
-package dto;
+package dto.config;
 
 /**
  * Abstract class for storing configuration information.

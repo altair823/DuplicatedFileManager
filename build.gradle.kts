@@ -20,6 +20,10 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     implementation("commons-cli:commons-cli:1.5.0")
 
+    // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    implementation("com.mysql:mysql-connector-j:8.1.0")
+
+
 }
 
 tasks.test {
@@ -27,5 +31,5 @@ tasks.test {
 }
 
 tasks.jar {
-    manifest.attributes["Main-Class"] = "view.Cli"
+    manifest.attributes["Main-Class"] = "view.CLI"
 }

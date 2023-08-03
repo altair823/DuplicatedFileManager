@@ -1,6 +1,6 @@
 package model;
 
-import dto.ConfigManager;
+import dto.config.ConfigManager;
 import dto.metadata.dir.DirMetadata;
 import dto.metadata.dir.DirMetadataDto;
 import dto.metadata.file.FileMetadata;
