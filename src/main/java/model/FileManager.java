@@ -5,9 +5,9 @@ import dto.metadata.dir.DirMetadata;
 import dto.metadata.dir.DirMetadataDto;
 import dto.metadata.file.FileMetadata;
 import dto.metadata.file.FileMetadataDto;
-import hasher.Hasher;
-import searcher.ModifiedContentSearch;
-import searcher.TotalSearch;
+import model.hasher.Hasher;
+import model.searcher.ModifiedContentSearch;
+import model.searcher.TotalSearch;
 
 import java.io.IOException;
 import java.util.*;
@@ -106,9 +106,7 @@ public class FileManager {
         );
         this.dirPaths = modifiedContentSearch.getDirPaths();
         this.filePaths = modifiedContentSearch.getFilePaths();
-        // Update modified directories
         updateModifiedDir(dirMetadataDto);
-        // Update modified files
         this.duplicateFiles = updateModifiedFile(fileMetadataDto);
     }
 

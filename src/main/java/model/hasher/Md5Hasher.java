@@ -1,4 +1,4 @@
-package hasher;
+package model.hasher;
 
 
 import java.io.IOException;

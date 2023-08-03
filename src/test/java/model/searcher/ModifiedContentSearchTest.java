@@ -1,4 +1,4 @@
-package searcher;
+package model.searcher;
 
 import org.junit.jupiter.api.Test;
 

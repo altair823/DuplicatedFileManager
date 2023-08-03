@@ -6,12 +6,12 @@ import dto.metadata.dir.DirMetadata;
 import dto.metadata.dir.DirMetadataDto;
 import dto.metadata.file.FileMetadata;
 import dto.metadata.file.FileMetadataDto;
-import hasher.Hasher;
-import hasher.Md5Hasher;
+import model.hasher.Hasher;
+import model.hasher.Md5Hasher;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
-import searcher.ModifiedContentSearch;
-import searcher.TotalSearch;
+import model.searcher.ModifiedContentSearch;
+import model.searcher.TotalSearch;
 
 import java.io.File;
 import java.io.IOException;
