@@ -72,7 +72,7 @@ class FileManagerTest {
             Thread.sleep(1000);
             addDummyFilesToFolders();
 
-            ConfigManager.createNewLastRunTimestamp(startTime);
+            ConfigManager.saveLastRunTimestamp(startTime);
 
         } catch (InterruptedException e) {
             e.printStackTrace();

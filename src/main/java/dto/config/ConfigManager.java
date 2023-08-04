@@ -12,8 +12,6 @@ public class ConfigManager {
 
     public static final String TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
 
-    public static final String DB_CONFIG_FILE_NAME = "dbConfig.json";
-
     private long lastRunTimestamp;
 
     private DatabaseConfig databaseConfig;
@@ -48,8 +46,12 @@ public class ConfigManager {
      * @param timestamp timestamp to write
      * @throws IOException if error occurs
      */
-    public static void createNewLastRunTimestamp(long timestamp) throws IOException {
+    public static void saveLastRunTimestamp(long timestamp) throws IOException {
         Files.writeString(Path.of(TIMESTAMP_FILE_NAME), String.valueOf(timestamp));
+    }
+
+    public static long createCurrentTimestamp() {
+        return System.currentTimeMillis();
     }
 
     /**
@@ -65,10 +67,18 @@ public class ConfigManager {
      * @param databaseConfigPath databaseConfigPath to configuration file
      * @throws IOException if error occurs
      */
-    public void loadDatabaseConfig(Path databaseConfigPath) throws IOException {
-        byte[] rawByteData = Files.readAllBytes(databaseConfigPath);
+    public void loadDatabaseConfig(String databaseConfigPath) throws IOException {
+        byte[] rawByteData = Files.readAllBytes(Path.of(databaseConfigPath));
         String strData = new String(rawByteData, StandardCharsets.UTF_8);
         databaseConfig = new DatabaseConfig(strData);
+    }
+
+    public void saveDatabaseConfig(String databaseConfigPath) throws IOException {
+        Files.writeString(Path.of(databaseConfigPath), databaseConfig.serialize());
+    }
+
+    public void setDatabaseConfig(DatabaseConfig databaseConfig) {
+        this.databaseConfig = databaseConfig;
     }
 
     /**
@@ -78,4 +88,5 @@ public class ConfigManager {
     public DatabaseConfig getDatabaseConfig() {
         return databaseConfig;
     }
+
 }

@@ -9,13 +9,13 @@ import java.sql.SQLException;
 @Category("localDBTest")
 public class DBSetupTest {
     @Test
-    void createConnectionTest() throws SQLException, ClassNotFoundException {
+    void createConnectionTest() throws SQLException {
         DBSetup dbSetup = new DBSetup(
                 "192.168.0.26",
                 "altair823",
-                "08230734eric!@"
+                "testpassword"
         );
-        Connection connection = dbSetup.createConnection();
+        Connection connection = dbSetup.getConnection();
         connection.close();
     }
 }

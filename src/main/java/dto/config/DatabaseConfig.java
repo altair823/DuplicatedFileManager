@@ -25,6 +25,16 @@ public class DatabaseConfig extends Config {
 
     /**
      * Constructor for DatabaseConfig.
+     * Example values are given.
+     */
+    public DatabaseConfig() {
+        this.databaseUrl = "URL of the database";
+        this.databaseUser = "username of the database";
+        this.databasePassword = "password of the database";
+    }
+
+    /**
+     * Constructor for DatabaseConfig.
      * @param json JSON string
      */
     public DatabaseConfig(String json) {

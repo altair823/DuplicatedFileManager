@@ -33,7 +33,12 @@ class Md5HasherTest {
         FileInputStream fileInputStream1 = new FileInputStream(testFileName);
         fileInputStream1.read(buffer);
         MessageDigest controlMd5Hasher = MessageDigest.getInstance("MD5");
-        String expectedDigest = Arrays.toString(controlMd5Hasher.digest(buffer));
+        byte[] controlDigest = controlMd5Hasher.digest(buffer);
+        StringBuilder temp = new StringBuilder();
+        for (byte b : controlDigest) {
+            temp.append(String.format("%02X", b));
+        }
+        String expectedDigest = temp.toString();
         fileInputStream1.close();
 
         FileInputStream fileInputStream2 = new FileInputStream(testFileName);

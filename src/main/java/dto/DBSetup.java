@@ -1,5 +1,7 @@
 package dto;
 
+import dto.config.DatabaseConfig;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -15,7 +17,13 @@ public class DBSetup {
         this.DB_PASSWORD = DB_PASSWORD;
     }
 
-    public Connection createConnection() throws SQLException, ClassNotFoundException {
+    public DBSetup(DatabaseConfig databaseConfig) {
+        this.DB_URL = databaseConfig.getDatabaseUrl();
+        this.DB_USER = databaseConfig.getDatabaseUser();
+        this.DB_PASSWORD = databaseConfig.getDatabasePassword();
+    }
+
+    public Connection getConnection() throws SQLException {
         return java.sql.DriverManager.getConnection(
                 "jdbc:mysql://" +
                 DB_URL +

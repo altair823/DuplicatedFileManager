@@ -2,8 +2,6 @@ package dto.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dto.config.ConfigManager;
-import dto.config.DatabaseConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
@@ -33,12 +31,12 @@ class ConfigManagerTest {
 
         // Load json from file
         ConfigManager configManager = new ConfigManager();
-        Path configFile = Path.of("configs.json");
+        String configFile = "configs.json";
         configManager.loadDatabaseConfig(configFile);
         assertEquals(configs, configManager.getDatabaseConfig());
 
         // Delete json file
-        Files.deleteIfExists(configFile);
+        Files.deleteIfExists(Path.of(configFile));
     }
 
     @Test
@@ -53,6 +51,5 @@ class ConfigManagerTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

@@ -92,4 +92,14 @@ public record FileMetadata(
     public int hashCode() {
         return Objects.hash(path, lastModified, size, hash);
     }
+
+    @Override
+    public String toString() {
+        return "FileMetadata{" +
+                "path='" + path + '\'' +
+                ", lastModified=" + lastModified +
+                ", size=" + size +
+                ", hash='" + hash + '\'' +
+                '}';
+    }
 }
