@@ -86,7 +86,7 @@ public class DirMetadataDto {
      * @return list of directory metadata
      */
     public List<DirMetadata> searchByPath(String path) {
-        String selectQuery = "SELECT * FROM " + DIR_TB_NAME + " WHERE path LIKE ?";
+        String selectQuery = "SELECT * FROM " + DIR_TB_NAME + " WHERE path = ?";
         List<DirMetadata> result = new LinkedList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(selectQuery)) {
             pstmt.setString(1, path);
