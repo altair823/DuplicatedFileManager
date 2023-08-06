@@ -15,7 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CLI {
+public class Cli {
     public static final String DEFAULT_DB_CONFIG_FILE_NAME = "dbConfig.json";
 
     public static void main(String[] args) throws ParseException {
