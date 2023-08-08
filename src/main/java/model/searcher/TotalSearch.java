@@ -1,4 +1,4 @@
-package searcher;
+package model.searcher;
 
 import java.io.File;
 import java.util.LinkedList;

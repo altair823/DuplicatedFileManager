@@ -1,4 +1,4 @@
-package hasher;
+package model.hasher;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,12 @@ class Md5HasherTest {
         final String testString = "Hello, World! \nMy name is Hong Gil Dong.";
         MessageDigest controlMd5Hasher = MessageDigest.getInstance("MD5");
         controlMd5Hasher.update(testString.getBytes());
-        String expectedDigest = Arrays.toString(controlMd5Hasher.digest());
+        byte[] controlDigest = controlMd5Hasher.digest();
+        StringBuilder temp = new StringBuilder();
+        for (byte b : controlDigest) {
+            temp.append(String.format("%02X", b));
+        }
+        String expectedDigest = temp.toString();
         Md5Hasher md5Hasher = new Md5Hasher();
         String testedDigest = md5Hasher.makeHash(new ByteArrayInputStream(testString.getBytes()));
 
@@ -33,7 +38,12 @@ class Md5HasherTest {
         FileInputStream fileInputStream1 = new FileInputStream(testFileName);
         fileInputStream1.read(buffer);
         MessageDigest controlMd5Hasher = MessageDigest.getInstance("MD5");
-        String expectedDigest = Arrays.toString(controlMd5Hasher.digest(buffer));
+        byte[] controlDigest = controlMd5Hasher.digest(buffer);
+        StringBuilder temp = new StringBuilder();
+        for (byte b : controlDigest) {
+            temp.append(String.format("%02X", b));
+        }
+        String expectedDigest = temp.toString();
         fileInputStream1.close();
 
         FileInputStream fileInputStream2 = new FileInputStream(testFileName);

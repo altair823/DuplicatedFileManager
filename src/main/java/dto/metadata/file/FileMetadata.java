@@ -1,6 +1,6 @@
 package dto.metadata.file;
 
-import hasher.Hasher;
+import model.hasher.Hasher;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -91,5 +91,15 @@ public record FileMetadata(
     @Override
     public int hashCode() {
         return Objects.hash(path, lastModified, size, hash);
+    }
+
+    @Override
+    public String toString() {
+        return "FileMetadata{" +
+                "path='" + path + '\'' +
+                ", lastModified=" + lastModified +
+                ", size=" + size +
+                ", hash='" + hash + '\'' +
+                '}';
     }
 }

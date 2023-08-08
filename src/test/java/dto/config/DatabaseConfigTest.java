@@ -1,7 +1,8 @@
-package dto;
+package dto.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dto.config.DatabaseConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

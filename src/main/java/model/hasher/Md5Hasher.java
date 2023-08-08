@@ -1,11 +1,10 @@
-package hasher;
+package model.hasher;
 
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 
 /**
@@ -34,7 +33,12 @@ public class Md5Hasher implements Hasher {
                 }
             } while (readCount != -1);
             stream.close();
-            return Arrays.toString(innerHash.digest());
+            byte[] digest = innerHash.digest();
+            StringBuilder strHash = new StringBuilder();
+            for (byte b : digest) {
+                strHash.append(String.format("%02X", b));
+            }
+            return strHash.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,4 +1,4 @@
-package dto;
+package dto.config;
 
 import com.google.gson.GsonBuilder;
 import java.util.Objects;
@@ -21,6 +21,16 @@ public class DatabaseConfig extends Config {
         this.databaseUrl = databaseUrl;
         this.databaseUser = databaseUser;
         this.databasePassword = databasePassword;
+    }
+
+    /**
+     * Constructor for DatabaseConfig.
+     * Example values are given.
+     */
+    public DatabaseConfig() {
+        this.databaseUrl = "URL of the database";
+        this.databaseUser = "username of the database";
+        this.databasePassword = "password of the database";
     }
 
     /**

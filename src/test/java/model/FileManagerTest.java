@@ -1,17 +1,17 @@
 package model;
 
-import dto.ConfigManager;
+import dto.config.ConfigManager;
 import dto.H2DatabaseSetup;
 import dto.metadata.dir.DirMetadata;
 import dto.metadata.dir.DirMetadataDto;
 import dto.metadata.file.FileMetadata;
 import dto.metadata.file.FileMetadataDto;
-import hasher.Hasher;
-import hasher.Md5Hasher;
+import model.hasher.Hasher;
+import model.hasher.Md5Hasher;
 import org.h2.tools.Server;
 import org.junit.jupiter.api.*;
-import searcher.ModifiedContentSearch;
-import searcher.TotalSearch;
+import model.searcher.ModifiedContentSearch;
+import model.searcher.TotalSearch;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +72,7 @@ class FileManagerTest {
             Thread.sleep(1000);
             addDummyFilesToFolders();
 
-            ConfigManager.createNewLastRunTimestamp(startTime);
+            ConfigManager.saveLastRunTimestamp(startTime);
 
         } catch (InterruptedException e) {
             e.printStackTrace();
