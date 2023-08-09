@@ -1,6 +1,6 @@
-package dto;
+package dao;
 
-import dto.config.DatabaseConfig;
+import model.config.DatabaseConfig;
 
 import java.sql.Connection;
 import java.sql.SQLException;

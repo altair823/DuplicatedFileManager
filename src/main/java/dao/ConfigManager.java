@@ -1,4 +1,6 @@
-package dto.config;
+package dao;
+
+import model.config.DatabaseConfig;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

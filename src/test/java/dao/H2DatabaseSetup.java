@@ -1,4 +1,4 @@
-package dto;
+package dao;
 
 import org.h2.jdbcx.JdbcDataSource;
 

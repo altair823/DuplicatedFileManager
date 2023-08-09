@@ -1,4 +1,6 @@
-package dto.metadata.dir;
+package dao;
+
+import model.metadata.DirMetadata;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,7 +9,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DirMetadataDto {
+public class DirMetadataDao {
 
     private final Connection connection;
 
@@ -17,10 +19,10 @@ public class DirMetadataDto {
     public static final String DIR_TB_NAME = "dir_metadata";
 
     /**
-     * Constructor for DirMetadataDto.
+     * Constructor for DirMetadataDao.
      * @param connection connection to the database
      */
-    public DirMetadataDto(Connection connection) {
+    public DirMetadataDao(Connection connection) {
         this.connection = connection;
     }
 

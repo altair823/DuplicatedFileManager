@@ -1,4 +1,4 @@
-package dto.metadata.dir;
+package model.metadata;
 
 import java.nio.file.Path;
 import java.util.Objects;

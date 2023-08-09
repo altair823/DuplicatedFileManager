@@ -1,11 +1,11 @@
 package view;
 
-import dto.DBSetup;
-import dto.config.ConfigManager;
-import dto.config.DatabaseConfig;
-import dto.metadata.dir.DirMetadataDto;
-import dto.metadata.file.FileMetadata;
-import dto.metadata.file.FileMetadataDto;
+import dao.DBSetup;
+import dao.ConfigManager;
+import dao.DirMetadataDao;
+import model.config.DatabaseConfig;
+import model.metadata.FileMetadata;
+import dao.FileMetadataDao;
 import model.FileManager;
 import model.hasher.Md5Hasher;
 import org.apache.commons.cli.*;
@@ -83,9 +83,9 @@ public class Cli {
 
         // Scan files
         if (cmd.hasOption("a")) {
-            fileManager.updateAll(rootDir, new DirMetadataDto(connection), new FileMetadataDto(connection));
+            fileManager.updateAll(rootDir, new DirMetadataDao(connection), new FileMetadataDao(connection));
         } else if (cmd.hasOption("u")) {
-            fileManager.updateModifiedContent(rootDir, new DirMetadataDto(connection), new FileMetadataDto(connection));
+            fileManager.updateModifiedContent(rootDir, new DirMetadataDao(connection), new FileMetadataDao(connection));
             List<FileMetadata> result = fileManager.getDuplicateFiles();
             System.out.println("Do you want to list all duplicated files? [Y/n]:");
             String answer = System.console().readLine();

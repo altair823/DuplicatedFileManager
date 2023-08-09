@@ -1,4 +1,4 @@
-package dto.metadata.file;
+package model.metadata;
 
 import model.hasher.Hasher;
 

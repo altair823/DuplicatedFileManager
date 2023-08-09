@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.security.MessageDigest;
-import java.util.Arrays;
 
 class Md5HasherTest {
 
@@ -27,7 +26,7 @@ class Md5HasherTest {
     }
 
     @Test
-    void makeHachFromFileTest() throws Exception {
+    void makeHashFromFileTest() throws Exception {
         final String testFileName = "makeHashFromFileTest.txt";
         final String testString = "Hello, World! \nMy name is Hong Gil Dong.";
         BufferedWriter testWriter = new BufferedWriter(new FileWriter(testFileName));
