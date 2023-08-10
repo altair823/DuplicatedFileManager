@@ -34,6 +34,9 @@ class FileManagerTest {
     DirMetadataDao dirMetadataDao;
     FileMetadataDao fileMetadataDao;
 
+    private static final String TEST_DIR_PATH = "DummyFolder1";
+    private static final String TEST_TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
+
     @BeforeAll
     public static void initWebServer() throws SQLException {
         Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8086")
@@ -72,7 +75,8 @@ class FileManagerTest {
             Thread.sleep(1000);
             addDummyFilesToFolders();
 
-            ConfigManager.saveLastRunTimestamp(startTime);
+            ConfigManager configManager = new ConfigManager(TEST_TIMESTAMP_FILE_NAME);
+            configManager.saveLastRunTimestamp(startTime);
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -80,10 +84,9 @@ class FileManagerTest {
 
     }
     private static void createFoldersWithDummyFiles() {
-        String baseFolderName = "DummyFolder";
         String baseFileName = "DummyFile";
 
-        createFoldersRecursive(Paths.get(baseFolderName + 1), 5, 3, baseFileName);
+        createFoldersRecursive(Paths.get(TEST_DIR_PATH), 5, 3, baseFileName);
     }
 
     private static void createFoldersRecursive(Path folderPath, int depth, int numFiles, String baseFileName) {
@@ -115,10 +118,9 @@ class FileManagerTest {
     }
 
     private static void addDummyFilesToFolders() {
-        String baseFolderName = "DummyFolder";
         String baseFileName = "DummyFileAfter";
 
-        addDummyFilesRecursive(Paths.get(baseFolderName + 1), baseFileName);
+        addDummyFilesRecursive(Paths.get(TEST_DIR_PATH), baseFileName);
     }
 
     private static void addDummyFilesRecursive(Path folderPath, String baseFileName) {
@@ -182,7 +184,7 @@ class FileManagerTest {
             connection.close();
         }
 
-        deleteDirectory(new File("DummyFolder1"));
+        deleteDirectory(new File(TEST_DIR_PATH));
         Files.deleteIfExists(Paths.get("lastRunTimestamp.txt"));
     }
 
@@ -203,10 +205,10 @@ class FileManagerTest {
         ConfigManager configManager = new ConfigManager();
         Hasher hasher = new Md5Hasher();
         FileManager fileManager = new FileManager(configManager, hasher);
-        fileManager.updateModifiedContent("DummyFolder1", dirMetadataDao, fileMetadataDao);
+        fileManager.updateModifiedContent(TEST_DIR_PATH, dirMetadataDao, fileMetadataDao);
         List<FileMetadata> result = fileManager.getDuplicateFiles();
 
-        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch("DummyFolder1", configManager.getLastRunTimestamp());
+        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch(TEST_DIR_PATH, configManager.getLastRunTimestamp());
         List<String> dirPaths = modifiedContentSearch.getDirPaths();
 
         List<DirMetadata> expectedDirMetadataList = dirPaths.stream().map(DirMetadata::create).toList();
@@ -223,12 +225,12 @@ class FileManagerTest {
 
     @Test
     void updateAllTest() {
-        ConfigManager configManager = new ConfigManager();
+        ConfigManager configManager = new ConfigManager(TEST_TIMESTAMP_FILE_NAME);
         Hasher hasher = new Md5Hasher();
         FileManager fileManager = new FileManager(configManager, hasher);
-        fileManager.updateAll("DummyFolder1", dirMetadataDao, fileMetadataDao);
+        fileManager.updateAll(TEST_DIR_PATH, dirMetadataDao, fileMetadataDao);
 
-        TotalSearch totalSearch = new TotalSearch("DummyFolder1");
+        TotalSearch totalSearch = new TotalSearch(TEST_DIR_PATH);
         List<String> dirPaths = totalSearch.getDirPaths();
         List<String> filePaths = totalSearch.getFilePaths();
 

@@ -31,5 +31,5 @@ tasks.test {
 }
 
 tasks.jar {
-    manifest.attributes["Main-Class"] = "view.CLI"
+    manifest.attributes["Main-Class"] = "view.Cli"
 }

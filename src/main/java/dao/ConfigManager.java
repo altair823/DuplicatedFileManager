@@ -14,6 +14,8 @@ public class ConfigManager {
 
     public static final String TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
 
+    private final String timestampFileName;
+
     private long lastRunTimestamp;
 
     private DatabaseConfig databaseConfig;
@@ -22,7 +24,15 @@ public class ConfigManager {
      * Constructor
      */
     public ConfigManager() {
+        this.timestampFileName = TIMESTAMP_FILE_NAME;
+    }
 
+    /**
+     * Constructor
+     * @param timestampFileName timestampFileName to set
+     */
+    public ConfigManager(String timestampFileName) {
+        this.timestampFileName = timestampFileName;
     }
 
     /**
@@ -30,7 +40,7 @@ public class ConfigManager {
      * @throws IOException if error occurs
      */
     public void loadLastRunTimestamp() throws IOException {
-        byte[] rawByteData = Files.readAllBytes(Path.of(TIMESTAMP_FILE_NAME));
+        byte[] rawByteData = Files.readAllBytes(Path.of(timestampFileName));
         String strData = new String(rawByteData, StandardCharsets.UTF_8);
         lastRunTimestamp = Long.parseLong(strData);
     }
@@ -48,8 +58,8 @@ public class ConfigManager {
      * @param timestamp timestamp to write
      * @throws IOException if error occurs
      */
-    public static void saveLastRunTimestamp(long timestamp) throws IOException {
-        Files.writeString(Path.of(TIMESTAMP_FILE_NAME), String.valueOf(timestamp));
+    public void saveLastRunTimestamp(long timestamp) throws IOException {
+        Files.writeString(Path.of(timestampFileName), String.valueOf(timestamp));
     }
 
     public static long createCurrentTimestamp() {

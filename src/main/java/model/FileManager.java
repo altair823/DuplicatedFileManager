@@ -186,5 +186,18 @@ public class FileManager {
     public List<FileMetadata> getDuplicateFiles() {
         return duplicateFiles;
     }
+
+    /**
+     * Delete duplicate files.
+     */
+    public void deleteDuplicateFiles() {
+        if (duplicateFiles.isEmpty()) {
+            return;
+        }
+        // First file is the original file. Do not delete it.
+        for (int i = 1; i < duplicateFiles.size(); i++) {
+            FileDelete.delete(duplicateFiles.get(i).path());
+        }
+    }
 }
 
