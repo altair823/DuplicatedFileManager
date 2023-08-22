@@ -1,4 +1,6 @@
-package dto.metadata.file;
+package dao;
+
+import model.metadata.FileMetadata;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +12,7 @@ import java.util.List;
 /**
  * DTO class for FileMetadata using SQL database.
  */
-public class FileMetadataDto {
+public class FileMetadataDao {
     private final Connection connection;
 
     /**
@@ -19,10 +21,10 @@ public class FileMetadataDto {
     public static final String FILE_TB_NAME = "file_metadata";
 
     /**
-     * Constructor for FileMetadataDto.
+     * Constructor for FileMetadataDao.
      * @param connection connection to the database
      */
-    public FileMetadataDto(Connection connection) {
+    public FileMetadataDao(Connection connection) {
         this.connection = connection;
     }
 

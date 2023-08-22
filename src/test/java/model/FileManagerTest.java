@@ -1,11 +1,11 @@
 package model;
 
-import dto.config.ConfigManager;
-import dto.H2DatabaseSetup;
-import dto.metadata.dir.DirMetadata;
-import dto.metadata.dir.DirMetadataDto;
-import dto.metadata.file.FileMetadata;
-import dto.metadata.file.FileMetadataDto;
+import dao.ConfigManager;
+import dao.H2DatabaseSetup;
+import model.metadata.DirMetadata;
+import dao.DirMetadataDao;
+import model.metadata.FileMetadata;
+import dao.FileMetadataDao;
 import model.hasher.Hasher;
 import model.hasher.Md5Hasher;
 import org.h2.tools.Server;
@@ -24,15 +24,18 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 
-import static dto.metadata.dir.DirMetadataDto.DIR_TB_NAME;
-import static dto.metadata.file.FileMetadataDto.FILE_TB_NAME;
+import static dao.DirMetadataDao.DIR_TB_NAME;
+import static dao.FileMetadataDao.FILE_TB_NAME;
 
 class FileManagerTest {
 
     private Connection connection;
 
-    DirMetadataDto dirMetadataDto;
-    FileMetadataDto fileMetadataDto;
+    DirMetadataDao dirMetadataDao;
+    FileMetadataDao fileMetadataDao;
+
+    private static final String TEST_DIR_PATH = "DummyFolder1";
+    private static final String TEST_TIMESTAMP_FILE_NAME = "lastRunTimestamp.txt";
 
     @BeforeAll
     public static void initWebServer() throws SQLException {
@@ -43,8 +46,8 @@ class FileManagerTest {
     @BeforeEach
     public void setup() throws SQLException, IOException {
         connection = H2DatabaseSetup.createConnection();
-        dirMetadataDto = new DirMetadataDto(connection);
-        fileMetadataDto = new FileMetadataDto(connection);
+        dirMetadataDao = new DirMetadataDao(connection);
+        fileMetadataDao = new FileMetadataDao(connection);
         String createDirMetadataTableQuery = "CREATE TABLE " + DIR_TB_NAME +
                 "(id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "path VARCHAR(255) NOT NULL UNIQUE, " +
@@ -72,7 +75,8 @@ class FileManagerTest {
             Thread.sleep(1000);
             addDummyFilesToFolders();
 
-            ConfigManager.saveLastRunTimestamp(startTime);
+            ConfigManager configManager = new ConfigManager(TEST_TIMESTAMP_FILE_NAME);
+            configManager.saveLastRunTimestamp(startTime);
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -80,10 +84,9 @@ class FileManagerTest {
 
     }
     private static void createFoldersWithDummyFiles() {
-        String baseFolderName = "DummyFolder";
         String baseFileName = "DummyFile";
 
-        createFoldersRecursive(Paths.get(baseFolderName + 1), 5, 3, baseFileName);
+        createFoldersRecursive(Paths.get(TEST_DIR_PATH), 5, 3, baseFileName);
     }
 
     private static void createFoldersRecursive(Path folderPath, int depth, int numFiles, String baseFileName) {
@@ -115,10 +118,9 @@ class FileManagerTest {
     }
 
     private static void addDummyFilesToFolders() {
-        String baseFolderName = "DummyFolder";
         String baseFileName = "DummyFileAfter";
 
-        addDummyFilesRecursive(Paths.get(baseFolderName + 1), baseFileName);
+        addDummyFilesRecursive(Paths.get(TEST_DIR_PATH), baseFileName);
     }
 
     private static void addDummyFilesRecursive(Path folderPath, String baseFileName) {
@@ -182,7 +184,7 @@ class FileManagerTest {
             connection.close();
         }
 
-        deleteDirectory(new File("DummyFolder1"));
+        deleteDirectory(new File(TEST_DIR_PATH));
         Files.deleteIfExists(Paths.get("lastRunTimestamp.txt"));
     }
 
@@ -203,16 +205,16 @@ class FileManagerTest {
         ConfigManager configManager = new ConfigManager();
         Hasher hasher = new Md5Hasher();
         FileManager fileManager = new FileManager(configManager, hasher);
-        fileManager.updateModifiedContent("DummyFolder1", dirMetadataDto, fileMetadataDto);
+        fileManager.updateModifiedContent(TEST_DIR_PATH, dirMetadataDao, fileMetadataDao);
         List<FileMetadata> result = fileManager.getDuplicateFiles();
 
-        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch("DummyFolder1", configManager.getLastRunTimestamp());
+        ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch(TEST_DIR_PATH, configManager.getLastRunTimestamp());
         List<String> dirPaths = modifiedContentSearch.getDirPaths();
 
         List<DirMetadata> expectedDirMetadataList = dirPaths.stream().map(DirMetadata::create).toList();
 
-        List<DirMetadata> dirMetadataList = dirMetadataDto.getAll();
-        List<FileMetadata> fileMetadataList = fileMetadataDto.getAll();
+        List<DirMetadata> dirMetadataList = dirMetadataDao.getAll();
+        List<FileMetadata> fileMetadataList = fileMetadataDao.getAll();
 
         Assertions.assertEquals(expectedDirMetadataList, dirMetadataList);
         String hash = fileMetadataList.get(0).hash(); // There should be only one file in database, and all hash should be the same.
@@ -223,20 +225,20 @@ class FileManagerTest {
 
     @Test
     void updateAllTest() {
-        ConfigManager configManager = new ConfigManager();
+        ConfigManager configManager = new ConfigManager(TEST_TIMESTAMP_FILE_NAME);
         Hasher hasher = new Md5Hasher();
         FileManager fileManager = new FileManager(configManager, hasher);
-        fileManager.updateAll("DummyFolder1", dirMetadataDto, fileMetadataDto);
+        fileManager.updateAll(TEST_DIR_PATH, dirMetadataDao, fileMetadataDao);
 
-        TotalSearch totalSearch = new TotalSearch("DummyFolder1");
+        TotalSearch totalSearch = new TotalSearch(TEST_DIR_PATH);
         List<String> dirPaths = totalSearch.getDirPaths();
         List<String> filePaths = totalSearch.getFilePaths();
 
         List<DirMetadata> expectedDirMetadataList = dirPaths.stream().map(DirMetadata::create).toList();
         List<FileMetadata> expectedFileMetadataList = filePaths.stream().map(f -> FileMetadata.create(f, hasher)).toList();
 
-        List<DirMetadata> dirMetadataList = dirMetadataDto.getAll();
-        List<FileMetadata> fileMetadataList = fileMetadataDto.getAll();
+        List<DirMetadata> dirMetadataList = dirMetadataDao.getAll();
+        List<FileMetadata> fileMetadataList = fileMetadataDao.getAll();
 
         Assertions.assertEquals(expectedDirMetadataList, dirMetadataList);
         Assertions.assertEquals(expectedFileMetadataList, fileMetadataList);

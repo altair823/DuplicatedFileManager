@@ -1,7 +1,9 @@
-package dto.config;
+package dao.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dao.ConfigManager;
+import model.config.DatabaseConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;

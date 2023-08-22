@@ -1,4 +1,4 @@
-package dto.config;
+package model.config;
 
 /**
  * Abstract class for storing configuration information.

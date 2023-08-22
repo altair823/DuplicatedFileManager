@@ -1,11 +1,11 @@
 package view;
 
-import dto.DBSetup;
-import dto.config.ConfigManager;
-import dto.config.DatabaseConfig;
-import dto.metadata.dir.DirMetadataDto;
-import dto.metadata.file.FileMetadata;
-import dto.metadata.file.FileMetadataDto;
+import dao.DBSetup;
+import dao.ConfigManager;
+import dao.DirMetadataDao;
+import model.config.DatabaseConfig;
+import model.metadata.FileMetadata;
+import dao.FileMetadataDao;
 import model.FileManager;
 import model.hasher.Md5Hasher;
 import org.apache.commons.cli.*;
@@ -83,9 +83,9 @@ public class Cli {
 
         // Scan files
         if (cmd.hasOption("a")) {
-            fileManager.updateAll(rootDir, new DirMetadataDto(connection), new FileMetadataDto(connection));
+            fileManager.updateAll(rootDir, new DirMetadataDao(connection), new FileMetadataDao(connection));
         } else if (cmd.hasOption("u")) {
-            fileManager.updateModifiedContent(rootDir, new DirMetadataDto(connection), new FileMetadataDto(connection));
+            fileManager.updateModifiedContent(rootDir, new DirMetadataDao(connection), new FileMetadataDao(connection));
             List<FileMetadata> result = fileManager.getDuplicateFiles();
             System.out.println("Do you want to list all duplicated files? [Y/n]:");
             String answer = System.console().readLine();
@@ -97,9 +97,26 @@ public class Cli {
             }
             System.out.println("Duplicated files count: " + result.size());
 
+            if (!result.isEmpty()) {
+                // Delete files
+                System.out.println("\nDo you want to delete duplicated files? [Y/n]:");
+                answer = System.console().readLine();
+                if (answer.equals("Y") || answer.equals("y") || answer.isEmpty()) {
+                    fileManager.deleteDuplicateFiles();
+                }
+            }
         } else {
             System.err.println("Please specify scan mode.");
             endProgram();
+        }
+
+
+        // Save last run timestamp
+        try {
+            configManager.saveLastRunTimestamp(ConfigManager.createCurrentTimestamp());
+        } catch (IOException e) {
+            System.err.println("Cannot save timestamp file.");
+            throw new RuntimeException(e);
         }
     }
 
@@ -110,7 +127,7 @@ public class Cli {
             System.err.println("Cannot load timestamp file.\n" +
                     "Create new timestamp file in default location.");
             try {
-                ConfigManager.saveLastRunTimestamp(ConfigManager.createCurrentTimestamp());
+                configManager.saveLastRunTimestamp(ConfigManager.createCurrentTimestamp());
             } catch (IOException ex) {
                 System.err.println("Cannot create new timestamp file in default location.");
                 throw new RuntimeException(ex);

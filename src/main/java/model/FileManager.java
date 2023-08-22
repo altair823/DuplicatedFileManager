@@ -1,10 +1,10 @@
 package model;
 
-import dto.config.ConfigManager;
-import dto.metadata.dir.DirMetadata;
-import dto.metadata.dir.DirMetadataDto;
-import dto.metadata.file.FileMetadata;
-import dto.metadata.file.FileMetadataDto;
+import dao.ConfigManager;
+import dao.DirMetadataDao;
+import model.metadata.DirMetadata;
+import model.metadata.FileMetadata;
+import dao.FileMetadataDao;
 import model.hasher.Hasher;
 import model.searcher.ModifiedContentSearch;
 import model.searcher.TotalSearch;
@@ -44,46 +44,46 @@ public class FileManager {
     /**
      * Update all files.
      * @param rootPath root path of the file
-     * @param dirMetadataDto DirMetadataDto object
-     * @param fileMetadataDto FileMetadataDto object
+     * @param dirMetadataDao DirMetadataDao object
+     * @param fileMetadataDao FileMetadataDao object
      */
     public void updateAll(
             String rootPath,
-            DirMetadataDto dirMetadataDto,
-            FileMetadataDto fileMetadataDto) {
+            DirMetadataDao dirMetadataDao,
+            FileMetadataDao fileMetadataDao) {
         TotalSearch totalSearch = new TotalSearch(rootPath);
         this.dirPaths = totalSearch.getDirPaths();
         this.filePaths = totalSearch.getFilePaths();
-        updateTotalDir(dirMetadataDto);
-        updateTotalFile(fileMetadataDto);
+        updateTotalDir(dirMetadataDao);
+        updateTotalFile(fileMetadataDao);
     }
 
-    private void updateTotalDir(DirMetadataDto dirMetadataDto) {
+    private void updateTotalDir(DirMetadataDao dirMetadataDao) {
         for (String dirPath : dirPaths) {
-            List<DirMetadata> dirList = dirMetadataDto.searchByPath(dirPath);
+            List<DirMetadata> dirList = dirMetadataDao.searchByPath(dirPath);
             if (dirList.isEmpty()) {
-                dirMetadataDto.insert(DirMetadata.create(dirPath));
+                dirMetadataDao.insert(DirMetadata.create(dirPath));
             }
             else {
-                dirMetadataDto.updateByPath(dirPath, DirMetadata.create(dirPath));
+                dirMetadataDao.updateByPath(dirPath, DirMetadata.create(dirPath));
             }
         }
     }
 
-    private void updateTotalFile(FileMetadataDto fileMetadataDto) {
+    private void updateTotalFile(FileMetadataDao fileMetadataDao) {
         for (String filePath : filePaths) {
             FileMetadata fileMetadata = FileMetadata.create(filePath, hasher);
-            List<FileMetadata> dupPathMetadataInDB = fileMetadataDto.searchByPath(filePath);
+            List<FileMetadata> dupPathMetadataInDB = fileMetadataDao.searchByPath(filePath);
 
             // If the file is in the database,
             // update the metadata.
             if (!dupPathMetadataInDB.isEmpty()) {
-                fileMetadataDto.updateByPath(filePath, fileMetadata);
+                fileMetadataDao.updateByPath(filePath, fileMetadata);
             }
             // If the file is not in the database,
             // insert the file into the database.
             else {
-                fileMetadataDto.insert(fileMetadata);
+                fileMetadataDao.insert(fileMetadata);
             }
         }
     }
@@ -91,13 +91,13 @@ public class FileManager {
     /**
      * Update modified contents.
      * @param rootPath root path of the file
-     * @param dirMetadataDto DirMetadataDto object
-     * @param fileMetadataDto FileMetadataDto object
+     * @param dirMetadataDao DirMetadataDao object
+     * @param fileMetadataDao FileMetadataDao object
      */
     public void updateModifiedContent(
             String rootPath,
-            DirMetadataDto dirMetadataDto,
-            FileMetadataDto fileMetadataDto) {
+            DirMetadataDao dirMetadataDao,
+            FileMetadataDao fileMetadataDao) {
 
         // Search modified contents
         ModifiedContentSearch modifiedContentSearch = new ModifiedContentSearch(
@@ -106,26 +106,26 @@ public class FileManager {
         );
         this.dirPaths = modifiedContentSearch.getDirPaths();
         this.filePaths = modifiedContentSearch.getFilePaths();
-        updateModifiedDir(dirMetadataDto);
-        this.duplicateFiles = updateModifiedFile(fileMetadataDto);
+        updateModifiedDir(dirMetadataDao);
+        this.duplicateFiles = updateModifiedFile(fileMetadataDao);
     }
 
-    private void updateModifiedDir(DirMetadataDto dirMetadataDto) {
+    private void updateModifiedDir(DirMetadataDao dirMetadataDao) {
         if (!dirPaths.isEmpty()) {
             for (String modifiedDirPath : dirPaths) {
-                List<DirMetadata> dirList = dirMetadataDto.searchByPath(modifiedDirPath);
+                List<DirMetadata> dirList = dirMetadataDao.searchByPath(modifiedDirPath);
                 if (dirList.isEmpty()) {
-                    dirMetadataDto.insert(DirMetadata.create(modifiedDirPath));
+                    dirMetadataDao.insert(DirMetadata.create(modifiedDirPath));
                 }
                 else {
                     long currentContentCount = DirMetadata.getActualDirContentCount(modifiedDirPath);
                     long currentLastModified = DirMetadata.getActualDirModifiedTime(modifiedDirPath);
                     for (DirMetadata dirMetadata : dirList) {
                         if (dirMetadata.contentCount() != currentContentCount) {
-                            dirMetadataDto.updateContentCount(dirMetadata.path(), currentContentCount);
+                            dirMetadataDao.updateContentCount(dirMetadata.path(), currentContentCount);
                         }
                         if (dirMetadata.lastModified() != currentLastModified) {
-                            dirMetadataDto.updateLastModified(dirMetadata.path(), currentLastModified);
+                            dirMetadataDao.updateLastModified(dirMetadata.path(), currentLastModified);
                         }
                     }
                 }
@@ -134,31 +134,31 @@ public class FileManager {
     }
 
 
-    private List<FileMetadata> updateModifiedFile(FileMetadataDto fileMetadataDto) {
+    private List<FileMetadata> updateModifiedFile(FileMetadataDao fileMetadataDao) {
         Set<FileMetadata> result = new HashSet<>();
         if (!filePaths.isEmpty()) {
             for (String modifiedFilePath : filePaths) {
                 FileMetadata modifiedFileMetadata = FileMetadata.create(modifiedFilePath, hasher);
-                List<FileMetadata> dupPathMetadataInDB = fileMetadataDto.searchByPath(modifiedFilePath);
+                List<FileMetadata> dupPathMetadataInDB = fileMetadataDao.searchByPath(modifiedFilePath);
 
                 // If the file is in the database,
                 // check if the file has been modified or not.
                 if (!dupPathMetadataInDB.isEmpty()) {
                     for (FileMetadata metadata : dupPathMetadataInDB) {
                         if (!metadata.hash().equals(modifiedFileMetadata.hash())) {
-                            fileMetadataDto.updateByPath(modifiedFilePath, modifiedFileMetadata);
+                            fileMetadataDao.updateByPath(modifiedFilePath, modifiedFileMetadata);
                         }
                     }
                 }
                 // If the file is not in the database,
                 // search the database by hash.
                 else {
-                    List<FileMetadata> sameHashFile = fileMetadataDto.searchByHash(modifiedFileMetadata.hash());
+                    List<FileMetadata> sameHashFile = fileMetadataDao.searchByHash(modifiedFileMetadata.hash());
                     // If the hash is not in the database,
                     // file is a new file.
                     // Insert the file into the database.
                     if (sameHashFile.isEmpty()) {
-                        fileMetadataDto.insert(modifiedFileMetadata);
+                        fileMetadataDao.insert(modifiedFileMetadata);
                     }
                     // If the hash is in the database,
                     // the file is a duplicate file.
@@ -185,6 +185,19 @@ public class FileManager {
      */
     public List<FileMetadata> getDuplicateFiles() {
         return duplicateFiles;
+    }
+
+    /**
+     * Delete duplicate files.
+     */
+    public void deleteDuplicateFiles() {
+        if (duplicateFiles.isEmpty()) {
+            return;
+        }
+        // First file is the original file. Do not delete it.
+        for (int i = 1; i < duplicateFiles.size(); i++) {
+            FileDelete.delete(duplicateFiles.get(i).path());
+        }
     }
 }
 
